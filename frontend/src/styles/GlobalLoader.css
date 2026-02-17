@@ -1,0 +1,44 @@
+.route-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.route-loader__backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 15% 15%,
+      rgba(0, 180, 255, 0.25),
+      transparent 55%
+    ),
+    linear-gradient(135deg, rgba(8, 26, 51, 0.85), rgba(15, 42, 74, 0.85));
+  backdrop-filter: blur(3px);
+}
+
+.route-loader__spinner {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 6px solid rgba(207, 233, 255, 0.25);
+  border-top-color: var(--color-accent);
+  border-right-color: var(--color-accent-2);
+  animation: route-loader-spin 0.8s linear infinite;
+  box-shadow: 0 12px 30px rgba(8, 26, 51, 0.4);
+}
+
+@keyframes route-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-loader__spinner {
+    animation: none;
+  }
+}

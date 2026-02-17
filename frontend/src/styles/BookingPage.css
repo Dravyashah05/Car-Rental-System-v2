@@ -1,0 +1,339 @@
+.booking-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-alt));
+  padding: 60px 20px;
+  color: var(--color-text);
+}
+
+.booking-container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.booking-container h1 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.booking-content {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 40px;
+}
+
+/* CAB CARD */
+.cab-summary {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 20px 45px rgba(4, 16, 31, 0.35);
+  display: grid;
+  gap: 18px;
+}
+
+.cab-media {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(0, 180, 255, 0.15), rgba(0, 82, 255, 0.1));
+}
+
+.cab-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.01);
+}
+
+.cab-badges {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cab-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #eef7ff;
+  background: rgba(9, 22, 38, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.cab-badge.rating {
+  color: #ffd86b;
+  border-color: rgba(255, 216, 107, 0.35);
+}
+
+.cab-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cab-info h2 {
+  margin-bottom: 6px;
+}
+
+.license-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: rgba(0, 180, 255, 0.15);
+  border: 1px solid rgba(0, 180, 255, 0.3);
+}
+
+.cab-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 180, 255, 0.12);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.cab-pricing {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.price-item {
+  background: rgba(9, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-text-soft);
+  font-size: 0.85rem;
+}
+
+.price-item strong {
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* FORM */
+.booking-form {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+}
+
+.form-group input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(11, 29, 54, 0.9);
+  color: white;
+}
+
+/* PRICE */
+.price-breakdown {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.breakdown-row.total {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+/* MAP SECTION */
+.map-section {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(14px);
+  margin-bottom: 30px;
+  grid-column: 1 / -1;
+  border: 1px solid var(--color-border);
+}
+
+.map-section h3 {
+  margin-bottom: 15px;
+  color: var(--color-text-muted);
+}
+
+.map-section > div {
+  height: 100px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* BUTTON */
+.confirm-btn {
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #00b4ff, #0066ff);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 180, 255, 0.4);
+}
+
+/* LOCATION PICKER SIMPLE */
+.location-picker-simple {
+  width: 100%;
+}
+
+.location-picker-input-group {
+  position: relative;
+}
+
+.location-input-styled {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: #0b1d36;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.location-input-styled:focus {
+  background: rgba(15, 42, 74, 0.95);
+  box-shadow: 0 0 0 3px rgba(0, 180, 255, 0.2);
+}
+
+.location-input-styled::placeholder {
+  color: var(--color-text-soft);
+}
+
+.clear-btn-simple {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.clear-btn-simple:hover {
+  color: var(--color-accent-2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.suggestions-dropdown-simple {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(11, 29, 54, 0.95);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  margin-top: -1px;
+}
+
+.suggestion-item-simple {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.suggestion-item-simple:hover {
+  background: rgba(0, 180, 255, 0.2);
+  padding-left: 20px;
+  color: var(--color-accent);
+}
+
+.suggestion-item-simple:first-child {
+  border-radius: 0;
+}
+
+.suggestion-item-simple:last-child {
+  border-radius: 0 0 10px 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .booking-content {
+    grid-template-columns: 1fr;
+  }
+
+  .cab-image {
+    height: 200px;
+  }
+
+  .cab-pricing {
+    grid-template-columns: 1fr;
+  }
+}
