@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/SearchForm.css';
 
@@ -45,7 +45,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   return (
     <form className="search-form" onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="pickup">📍 Pickup Location</label>
+        <label htmlFor="pickup">Pickup Location</label>
         <input
           id="pickup"
           type="text"
@@ -57,7 +57,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="dropoff">📍 Dropoff Location</label>
+        <label htmlFor="dropoff">Dropoff Location</label>
         <input
           id="dropoff"
           type="text"
@@ -69,7 +69,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="date">📅 Date</label>
+        <label htmlFor="date">Date</label>
         <input
           id="date"
           type="date"
@@ -81,7 +81,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="time">⏰ Time</label>
+        <label htmlFor="time">Time</label>
         <input
           id="time"
           type="time"
@@ -92,7 +92,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="distance">📏 Estimated Distance (km)</label>
+        <label htmlFor="distance">Estimated Distance (km)</label>
         <input
           id="distance"
           type="number"
@@ -112,3 +112,4 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
 };
 
 export default SearchForm;
+

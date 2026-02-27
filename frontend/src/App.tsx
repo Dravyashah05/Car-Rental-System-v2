@@ -13,6 +13,7 @@ import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import './styles/GlobalLoader.css';
+import './App.css';
 
 function RouteChangeLoader() {
   const location = useLocation();
@@ -49,7 +50,7 @@ function App() {
         >
           <RouteChangeLoader />
           <Navbar />
-          <main style={{ minHeight: 'calc(100vh - 140px)' }}>
+          <main style={{ minHeight: 'calc(100vh - 140px)' }} className="app-main">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/cabs" element={<CabsPage />} />

@@ -1,77 +1,65 @@
-/* Search Form Styles */
-.search-form {
-  background: var(--color-surface);
-  padding: 40px;
-  border-radius: 15px;
+﻿.search-form {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: 1140px;
   margin: 0 auto;
-  border: 1px solid var(--color-border);
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 8px;
 }
 
 .form-group label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-soft);
 }
 
 .form-group input {
-  padding: 12px 15px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  background: rgba(11, 29, 54, 0.85);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(0, 0, 0, 0.2);
   color: var(--color-text);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(0, 180, 255, 0.15);
+  border-color: rgba(255, 131, 103, 0.8);
+  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.14);
 }
 
 .search-btn {
   grid-column: 1 / -1;
-  padding: 14px 30px;
-  background: linear-gradient(135deg, #00b4ff 0%, #0066ff 100%);
-  color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  padding: 13px 18px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #ff8367, #ffc24d);
+  color: #281918;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .search-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 180, 255, 0.3);
-}
-
-.search-btn:active {
-  transform: translateY(0);
+  box-shadow: 0 16px 24px rgba(255, 131, 103, 0.32);
 }
 
 @media (max-width: 768px) {
   .search-form {
     grid-template-columns: 1fr;
     padding: 20px;
-    gap: 15px;
-  }
-
-  .search-btn {
-    grid-column: 1;
   }
 }
+

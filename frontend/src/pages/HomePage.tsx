@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import {
   FaBolt,
   FaRupeeSign,
@@ -12,7 +12,10 @@ import {
   FaMapMarkedAlt,
   FaCalendarCheck,
   FaRoute,
+  FaCalculator,
+  FaClock,
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import SearchForm from '../components/SearchForm';
 import '../styles/HomePage.css';
 
@@ -60,17 +63,39 @@ const testimonials = [
 ];
 
 const HomePage: React.FC = () => {
+  const [estimator, setEstimator] = useState({
+    distanceKm: 12,
+    durationMinutes: 35,
+    farePerKm: 14,
+    farePerHour: 240,
+  });
+
   const handleSearch = () => {
     // Handle search here
   };
 
+  const estimatedFare = useMemo(() => {
+    const distanceCost = estimator.distanceKm * estimator.farePerKm;
+    const timeCost = (estimator.durationMinutes / 60) * estimator.farePerHour;
+    return Math.round(distanceCost + timeCost);
+  }, [estimator]);
+
+  const today = new Date();
+  const currentHour = today.getHours();
+  const etaLabel = currentHour >= 8 && currentHour <= 11 ? 'Busy traffic window' : 'Smooth traffic window';
+
   return (
     <div className="home-page">
-      {/* HERO */}
       <section className="hero-section">
         <div className="hero-content section-container">
-          <h1>Welcome to CityRide</h1>
-          <p>Book your ride in minutes, travel with confidence</p>
+          <span className="hero-chip">Smart City Mobility</span>
+          <h1>Book bright. Ride right. Reach faster.</h1>
+          <p>Plan city rides in seconds with transparent fares and verified drivers.</p>
+
+          <div className="hero-actions">
+            <Link to="/cabs" className="hero-btn primary">Explore Cabs</Link>
+            <Link to="/bookings" className="hero-btn ghost">Track Bookings</Link>
+          </div>
 
           <div className="hero-features">
             <div className="feature">
@@ -93,7 +118,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* SEARCH */}
       <section className="search-section">
         <div className="section-container">
           <h2>Find Your Perfect Ride</h2>
@@ -101,7 +125,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* STATS */}
       <section className="stats-section">
         <div className="stats-grid section-container">
           {stats.map((stat) => (
@@ -113,7 +136,66 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      <section className="estimator-section">
+        <div className="section-container estimator-grid">
+          <div className="estimator-panel">
+            <h2><FaCalculator /> Quick Fare Estimator</h2>
+            <p>Adjust trip values to preview expected ride fare before booking.</p>
+
+            <label>
+              Distance: {estimator.distanceKm} km
+              <input
+                type="range"
+                min="2"
+                max="60"
+                value={estimator.distanceKm}
+                onChange={(event) =>
+                  setEstimator((prev) => ({ ...prev, distanceKm: Number(event.target.value) }))
+                }
+              />
+            </label>
+
+            <label>
+              Duration: {estimator.durationMinutes} min
+              <input
+                type="range"
+                min="10"
+                max="180"
+                value={estimator.durationMinutes}
+                onChange={(event) =>
+                  setEstimator((prev) => ({ ...prev, durationMinutes: Number(event.target.value) }))
+                }
+              />
+            </label>
+
+            <label>
+              Per km: Rs. {estimator.farePerKm}
+              <input
+                type="range"
+                min="8"
+                max="30"
+                value={estimator.farePerKm}
+                onChange={(event) =>
+                  setEstimator((prev) => ({ ...prev, farePerKm: Number(event.target.value) }))
+                }
+              />
+            </label>
+          </div>
+
+          <aside className="estimator-result">
+            <p className="eyebrow">Estimated Trip Fare</p>
+            <h3>Rs. {estimatedFare}</h3>
+            <p className="meta"><FaClock /> {etaLabel}</p>
+            <ul>
+              <li>Distance charge: Rs. {estimator.distanceKm * estimator.farePerKm}</li>
+              <li>Time charge: Rs. {Math.round((estimator.durationMinutes / 60) * estimator.farePerHour)}</li>
+              <li>No hidden booking fee</li>
+            </ul>
+            <Link to="/cabs" className="hero-btn primary full">Book This Ride</Link>
+          </aside>
+        </div>
+      </section>
+
       <section className="steps-section">
         <div className="section-container">
           <h2>How CityRide Works</h2>
@@ -135,7 +217,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* INFO */}
       <section className="info-section">
         <div className="section-container">
           <h2>Why Choose CityRide?</h2>
@@ -180,7 +261,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
       <section className="testimonials-section">
         <div className="section-container">
           <h2>What Riders Say</h2>
@@ -200,3 +280,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+

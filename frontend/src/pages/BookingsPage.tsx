@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useBooking } from '../context/BookingContext';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBooking } from '../context/BookingContext';
 import { cabService } from '../services/cabService';
 import type { Booking } from '../types';
 import '../styles/BookingsPage.css';
 
 const BookingsPage: React.FC = () => {
-  const { bookings: userBookings } = useBooking();
+  const { bookings: contextBookings } = useBooking();
   const { currentUser } = useAuth();
+
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>(
-    'all'
-  );
+  const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setBookings(userBookings);
-  }, [userBookings]);
+    setBookings(contextBookings);
+  }, [contextBookings]);
 
   useEffect(() => {
-    let isActive = true;
+    let isMounted = true;
 
     const loadBookings = async () => {
       if (!currentUser) {
@@ -34,44 +35,49 @@ const BookingsPage: React.FC = () => {
       setError('');
       try {
         const latest = await cabService.getBookings();
-        if (isActive) {
-          setBookings(latest);
-        }
+        if (isMounted) setBookings(latest);
       } catch {
-        if (isActive) {
-          setError('Could not load bookings. Please try again.');
-        }
+        if (isMounted) setError('Could not load bookings. Please try again.');
       } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
+        if (isMounted) setIsLoading(false);
       }
     };
 
     loadBookings();
 
     return () => {
-      isActive = false;
+      isMounted = false;
     };
   }, [currentUser]);
 
-  const getFilteredBookings = () => {
-    switch (activeTab) {
-      case 'upcoming':
-        return bookings.filter((b) => b.status === 'confirmed');
-      case 'completed':
-        return bookings.filter((b) => b.status === 'completed');
-      case 'cancelled':
-        return bookings.filter((b) => b.status === 'cancelled');
-      case 'all':
-      default:
-        return bookings;
-    }
-  };
+  const counts = useMemo(
+    () => ({
+      all: bookings.length,
+      upcoming: bookings.filter((booking) => booking.status === 'confirmed').length,
+      completed: bookings.filter((booking) => booking.status === 'completed').length,
+      cancelled: bookings.filter((booking) => booking.status === 'cancelled').length,
+    }),
+    [bookings]
+  );
 
-  const filteredBookings = getFilteredBookings();
+  const filteredBookings = useMemo(() => {
+    let list = bookings;
+
+    if (activeTab === 'upcoming') list = bookings.filter((booking) => booking.status === 'confirmed');
+    if (activeTab === 'completed') list = bookings.filter((booking) => booking.status === 'completed');
+    if (activeTab === 'cancelled') list = bookings.filter((booking) => booking.status === 'cancelled');
+
+    if (!searchTerm.trim()) return list;
+
+    const q = searchTerm.toLowerCase();
+    return list.filter((booking) => {
+      const route = `${booking.pickupLocation} ${booking.dropoffLocation}`.toLowerCase();
+      return route.includes(q) || booking.id.toLowerCase().includes(q);
+    });
+  }, [activeTab, bookings, searchTerm]);
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '--';
     return new Date(dateString).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',
@@ -89,16 +95,16 @@ const BookingsPage: React.FC = () => {
           </div>
           <div className="bookings-count">
             <span>Total</span>
-            <strong>{bookings.length}</strong>
+            <strong>{counts.all}</strong>
           </div>
         </div>
 
         {!currentUser ? (
           <div className="empty-state">
             <p>Log in to view your bookings.</p>
-            <a href="/login" className="browse-btn">
+            <Link to="/login" className="browse-btn">
               Go to Login
-            </a>
+            </Link>
           </div>
         ) : isLoading ? (
           <div className="empty-state">
@@ -111,50 +117,48 @@ const BookingsPage: React.FC = () => {
               Retry
             </button>
           </div>
-        ) : bookings.length === 0 ? (
+        ) : counts.all === 0 ? (
           <div className="empty-state">
             <p>No bookings yet</p>
-            <p>Start booking your rides now!</p>
-            <a href="/cabs" className="browse-btn">
+            <p>Start booking your rides now.</p>
+            <Link to="/cabs" className="browse-btn">
               Browse Cabs
-            </a>
+            </Link>
           </div>
         ) : (
           <>
-            <div className="booking-tabs">
-              <button
-                className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-                onClick={() => setActiveTab('all')}
-              >
-                All Bookings <span className="tab-count">{bookings.length}</span>
-              </button>
-              <button
-                className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-                onClick={() => setActiveTab('upcoming')}
-              >
-                Upcoming{' '}
-                <span className="tab-count">
-                  {bookings.filter((b) => b.status === 'confirmed').length}
-                </span>
-              </button>
-              <button
-                className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
-                onClick={() => setActiveTab('completed')}
-              >
-                Completed{' '}
-                <span className="tab-count">
-                  {bookings.filter((b) => b.status === 'completed').length}
-                </span>
-              </button>
-              <button
-                className={`tab ${activeTab === 'cancelled' ? 'active' : ''}`}
-                onClick={() => setActiveTab('cancelled')}
-              >
-                Cancelled{' '}
-                <span className="tab-count">
-                  {bookings.filter((b) => b.status === 'cancelled').length}
-                </span>
-              </button>
+            <div className="booking-controls">
+              <div className="booking-tabs">
+                <button className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>
+                  All <span className="tab-count">{counts.all}</span>
+                </button>
+                <button
+                  className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('upcoming')}
+                >
+                  Upcoming <span className="tab-count">{counts.upcoming}</span>
+                </button>
+                <button
+                  className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('completed')}
+                >
+                  Completed <span className="tab-count">{counts.completed}</span>
+                </button>
+                <button
+                  className={`tab ${activeTab === 'cancelled' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('cancelled')}
+                >
+                  Cancelled <span className="tab-count">{counts.cancelled}</span>
+                </button>
+              </div>
+
+              <input
+                className="booking-search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search by route or booking id"
+                aria-label="Search bookings"
+              />
             </div>
 
             <div className="bookings-list">
@@ -165,7 +169,9 @@ const BookingsPage: React.FC = () => {
                       <div>
                         <div className="booking-id">Booking #{booking.id.slice(-8)}</div>
                         <div className="booking-route">
-                          {booking.pickupLocation} → {booking.dropoffLocation}
+                          {booking.pickupLocation}
+                          {' -> '}
+                          {booking.dropoffLocation}
                         </div>
                       </div>
                       <span className={`status-pill status-${booking.status}`}>
@@ -177,7 +183,7 @@ const BookingsPage: React.FC = () => {
                       <div className="meta-item">
                         <span className="meta-label">Pickup</span>
                         <span className="meta-value">
-                          {formatDate(booking.pickupDate)} • {booking.pickupTime}
+                          {formatDate(booking.pickupDate)} | {booking.pickupTime || '--'}
                         </span>
                       </div>
                       <div className="meta-item">
@@ -204,7 +210,7 @@ const BookingsPage: React.FC = () => {
 
                       <div className="meta-item total">
                         <span className="meta-label">Total Amount</span>
-                        <span className="meta-value">₹{booking.totalPrice.toFixed(2)}</span>
+                        <span className="meta-value">Rs. {booking.totalPrice.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -223,7 +229,7 @@ const BookingsPage: React.FC = () => {
                 ))
               ) : (
                 <div className="no-bookings">
-                  <p>No {activeTab} bookings</p>
+                  <p>No matching bookings found.</p>
                 </div>
               )}
             </div>

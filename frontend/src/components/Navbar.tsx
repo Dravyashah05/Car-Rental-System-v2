@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Navbar.css';
@@ -6,17 +6,35 @@ import '../styles/Navbar.css';
 const Navbar: React.FC = () => {
   const location = useLocation();
   const { currentUser } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
   const roleLabel = currentUser?.role ? currentUser.role.toUpperCase() : 'USER';
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
+        <Link to="/" className="navbar-logo" aria-label="CityRide home">
+          <span className="logo-dot" />
           CityRide
         </Link>
-        <div className="nav-right">
+
+        <button
+          type="button"
+          className={`nav-toggle ${isMenuOpen ? 'open' : ''}`}
+          aria-label="Toggle navigation"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div className={`nav-right ${isMenuOpen ? 'open' : ''}`}>
           <ul className="nav-menu">
             <li className="nav-item">
               <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
@@ -68,3 +86,4 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+

@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { cabService } from '../services/cabService';
-import { authService } from '../services/authService';
-import { useBooking } from '../context/BookingContext';
-import { useAuth } from '../context/AuthContext';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
-  FaMapMarkerAlt,
   FaCalendarAlt,
-  FaClock,
-  FaRoad,
-  FaHourglassHalf,
-  FaStar,
   FaChair,
+  FaClock,
   FaGasPump,
+  FaHourglassHalf,
+  FaMapMarkerAlt,
+  FaRoad,
+  FaStar,
 } from 'react-icons/fa';
-import type { Cab } from '../types';
-import LocationPickerSimple from '../components/LocationPickerSimple';
 import MapComponent from '../components/MapComponent';
+import LocationPickerSimple from '../components/LocationPickerSimple';
+import { useAuth } from '../context/AuthContext';
+import { useBooking } from '../context/BookingContext';
+import { authService } from '../services/authService';
+import { cabService } from '../services/cabService';
+import type { Cab } from '../types';
 import '../styles/BookingPage.css';
 
 const BookingPage: React.FC = () => {
@@ -27,7 +27,7 @@ const BookingPage: React.FC = () => {
 
   const [cab, setCab] = useState<Cab | null>(null);
   const [loading, setLoading] = useState(true);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     pickupLocation: '',
@@ -49,37 +49,35 @@ const BookingPage: React.FC = () => {
     loadCab();
   }, [cabId]);
 
-  useEffect(() => {
-    if (cab) {
-      const price = cabService.calculatePrice(
-        cab.pricePerKm,
-        cab.pricePerHour,
-        formData.estimatedDistance,
-        formData.estimatedDuration
-      );
-      setTotalPrice(price);
-    }
+  const totalPrice = useMemo(() => {
+    if (!cab) return 0;
+    return cabService.calculatePrice(
+      cab.pricePerKm,
+      cab.pricePerHour,
+      formData.estimatedDistance,
+      formData.estimatedDuration
+    );
   }, [cab, formData.estimatedDistance, formData.estimatedDuration]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name.includes('Distance') || name.includes('Duration')
-        ? Number(value)
-        : value,
+      [name]: name.includes('Distance') || name.includes('Duration') ? Number(value) : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cab) return;
+
     const token = localStorage.getItem('authToken');
     if (!currentUser || !token) {
       navigate('/login', { state: { from: `/book/${cabId ?? ''}` } });
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const booking = await cabService.createBooking({
         cabId: cab.id,
@@ -104,6 +102,8 @@ const BookingPage: React.FC = () => {
           ? (err as { message: string }).message
           : 'Failed to create booking';
       alert(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -118,8 +118,7 @@ const BookingPage: React.FC = () => {
         <h1>Book Your Ride</h1>
 
         <div className="booking-content">
-          {/* CAB CARD */}
-          <div className="cab-summary">
+          <div className="cab-summary panel-card">
             <div className="cab-media">
               <img src={cab.image} alt={cab.model} className="cab-image" />
               <div className="cab-badges">
@@ -132,7 +131,9 @@ const BookingPage: React.FC = () => {
             </div>
             <div className="cab-info">
               <div className="cab-title-row">
-                <h2>{cab.make} {cab.model}</h2>
+                <h2>
+                  {cab.make} {cab.model}
+                </h2>
                 <span className="license-pill">{cab.licensePlate}</span>
               </div>
 
@@ -158,9 +159,8 @@ const BookingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* MAP DISPLAY */}
           {formData.pickupLocation && formData.dropoffLocation && (
-            <div className="map-section">
+            <div className="map-section panel-card">
               <h3>Trip Preview</h3>
               <MapComponent
                 pickupLocation={formData.pickupLocation}
@@ -169,32 +169,33 @@ const BookingPage: React.FC = () => {
             </div>
           )}
 
-          {/* FORM */}
-          <form className="booking-form" onSubmit={handleSubmit}>
+          <form className="booking-form panel-card" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label><FaMapMarkerAlt /> Pickup Location</label>
+              <label>
+                <FaMapMarkerAlt /> Pickup Location
+              </label>
               <LocationPickerSimple
                 value={formData.pickupLocation}
-                onChange={(val: string) =>
-                  setFormData(prev => ({ ...prev, pickupLocation: val }))
-                }
+                onChange={(val: string) => setFormData((prev) => ({ ...prev, pickupLocation: val }))}
                 placeholder="Enter pickup location"
               />
             </div>
 
             <div className="form-group">
-              <label><FaMapMarkerAlt /> Dropoff Location</label>
+              <label>
+                <FaMapMarkerAlt /> Dropoff Location
+              </label>
               <LocationPickerSimple
                 value={formData.dropoffLocation}
-                onChange={(val: string) =>
-                  setFormData(prev => ({ ...prev, dropoffLocation: val }))
-                }
+                onChange={(val: string) => setFormData((prev) => ({ ...prev, dropoffLocation: val }))}
                 placeholder="Enter dropoff location"
               />
             </div>
 
             <div className="form-group">
-              <label><FaCalendarAlt /> Pickup Date</label>
+              <label>
+                <FaCalendarAlt /> Pickup Date
+              </label>
               <input
                 type="date"
                 name="pickupDate"
@@ -206,7 +207,9 @@ const BookingPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label><FaClock /> Pickup Time</label>
+              <label>
+                <FaClock /> Pickup Time
+              </label>
               <input
                 type="time"
                 name="pickupTime"
@@ -217,7 +220,9 @@ const BookingPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label><FaRoad /> Estimated Distance (km)</label>
+              <label>
+                <FaRoad /> Estimated Distance (km)
+              </label>
               <input
                 type="number"
                 name="estimatedDistance"
@@ -229,7 +234,9 @@ const BookingPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label><FaHourglassHalf /> Estimated Duration (minutes)</label>
+              <label>
+                <FaHourglassHalf /> Estimated Duration (minutes)
+              </label>
               <input
                 type="number"
                 name="estimatedDuration"
@@ -240,27 +247,28 @@ const BookingPage: React.FC = () => {
               />
             </div>
 
-            {/* PRICE */}
             <div className="price-breakdown">
               <h3>Price Breakdown</h3>
 
               <div className="breakdown-row">
                 <span>Distance Cost</span>
-                <span>₹{(formData.estimatedDistance * cab.pricePerKm).toFixed(2)}</span>
+                <span>Rs. {(formData.estimatedDistance * cab.pricePerKm).toFixed(2)}</span>
               </div>
 
               <div className="breakdown-row">
                 <span>Time Cost</span>
-                <span>₹{((formData.estimatedDuration / 60) * cab.pricePerHour).toFixed(2)}</span>
+                <span>Rs. {((formData.estimatedDuration / 60) * cab.pricePerHour).toFixed(2)}</span>
               </div>
 
               <div className="breakdown-row total">
                 <span>Total</span>
-                <span>₹{totalPrice.toFixed(2)}</span>
+                <span>Rs. {totalPrice.toFixed(2)}</span>
               </div>
             </div>
 
-            <button className="confirm-btn">Confirm Booking</button>
+            <button className="confirm-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
+            </button>
           </form>
         </div>
       </div>

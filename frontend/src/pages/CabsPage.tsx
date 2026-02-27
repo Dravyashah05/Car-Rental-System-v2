@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { cabService } from '../services/cabService';
 import CabCard from '../components/CabCard';
 import type { Cab } from '../types';
@@ -8,6 +8,7 @@ const CabsPage: React.FC = () => {
   const [cabs, setCabs] = useState<Cab[]>([]);
   const [filteredCabs, setFilteredCabs] = useState<Cab[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'recommended' | 'price-low' | 'rating-high'>('recommended');
   const [filters, setFilters] = useState({
     maxPrice: 50,
     minRating: 0,
@@ -32,6 +33,24 @@ const CabsPage: React.FC = () => {
     applyFilters();
   }, [filters]);
 
+  const visibleCabs = useMemo(() => {
+    const clone = [...filteredCabs];
+
+    if (sortBy === 'price-low') {
+      clone.sort((a, b) => a.pricePerKm - b.pricePerKm);
+    }
+
+    if (sortBy === 'rating-high') {
+      clone.sort((a, b) => b.rating - a.rating);
+    }
+
+    if (sortBy === 'recommended') {
+      clone.sort((a, b) => Number(b.available) - Number(a.available) || b.rating - a.rating);
+    }
+
+    return clone;
+  }, [filteredCabs, sortBy]);
+
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters((prev) => ({
@@ -47,14 +66,20 @@ const CabsPage: React.FC = () => {
   return (
     <div className="cabs-page">
       <div className="cabs-container">
-        <h1>Browse Available Cabs</h1>
+        <header className="cabs-header">
+          <h1>Browse Available Cabs</h1>
+          <p>Use smart filters and sort to find the right ride for your trip.</p>
+        </header>
 
         <div className="cabs-content">
-          <div className="filters-sidebar">
-            <h2>Filters</h2>
+          <aside className="filters-sidebar">
+            <div className="filters-head">
+              <h2>Filters</h2>
+              <span>{visibleCabs.length} shown</span>
+            </div>
 
             <div className="filter-group">
-              <label htmlFor="maxPrice">Max Price per km: ₹{filters.maxPrice}</label>
+              <label htmlFor="maxPrice">Max Price per km: Rs. {filters.maxPrice}</label>
               <input
                 id="maxPrice"
                 type="range"
@@ -64,7 +89,6 @@ const CabsPage: React.FC = () => {
                 value={filters.maxPrice}
                 onChange={handleFilterChange}
               />
-              <span className="range-value">₹{filters.maxPrice}</span>
             </div>
 
             <div className="filter-group">
@@ -79,7 +103,6 @@ const CabsPage: React.FC = () => {
                 value={filters.minRating}
                 onChange={handleFilterChange}
               />
-              <span className="range-value">{filters.minRating.toFixed(1)} ⭐</span>
             </div>
 
             <div className="filter-group">
@@ -93,13 +116,25 @@ const CabsPage: React.FC = () => {
                 value={filters.seats}
                 onChange={handleFilterChange}
               />
-              <span className="range-value">{filters.seats} seats</span>
             </div>
-          </div>
+
+            <div className="filter-group">
+              <label htmlFor="sortBy">Sort by</label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as typeof sortBy)}
+              >
+                <option value="recommended">Recommended</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="rating-high">Rating: High to Low</option>
+              </select>
+            </div>
+          </aside>
 
           <div className="cabs-grid">
-            {filteredCabs.length > 0 ? (
-              filteredCabs.map((cab) => <CabCard key={cab.id} cab={cab} />)
+            {visibleCabs.length > 0 ? (
+              visibleCabs.map((cab) => <CabCard key={cab.id} cab={cab} />)
             ) : (
               <div className="no-results">
                 <p>No cabs found matching your criteria.</p>
@@ -110,8 +145,8 @@ const CabsPage: React.FC = () => {
         </div>
 
         <div className="cabs-stats">
-          <p>Total Cabs Available: {cabs.length}</p>
-          <p>Matching Your Filters: {filteredCabs.length}</p>
+          <p>Total Available in CityRide: {cabs.length}</p>
+          <p>Matching Filters: {visibleCabs.length}</p>
         </div>
       </div>
     </div>
@@ -119,3 +154,4 @@ const CabsPage: React.FC = () => {
 };
 
 export default CabsPage;
+

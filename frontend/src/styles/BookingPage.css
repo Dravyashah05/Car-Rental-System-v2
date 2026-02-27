@@ -1,58 +1,57 @@
-.booking-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-alt));
-  padding: 60px 20px;
-  color: var(--color-text);
+﻿.booking-page {
+  min-height: calc(100vh - 140px);
+  padding: 40px 20px 70px;
 }
 
 .booking-container {
-  max-width: 1200px;
+  width: min(1180px, 100%);
   margin: auto;
 }
 
 .booking-container h1 {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
 }
 
 .booking-content {
   display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 40px;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 22px;
 }
 
-/* CAB CARD */
-.cab-summary {
-  background: var(--color-surface);
+.panel-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   padding: 20px;
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 20px 45px rgba(4, 16, 31, 0.35);
+  box-shadow: var(--shadow-soft);
+}
+
+.cab-summary {
   display: grid;
-  gap: 18px;
+  gap: 16px;
+  height: fit-content;
 }
 
 .cab-media {
   position: relative;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(0, 180, 255, 0.15), rgba(0, 82, 255, 0.1));
+  background: linear-gradient(130deg, #22253f, #2f1832);
 }
 
 .cab-image {
   width: 100%;
   height: 220px;
   object-fit: cover;
-  display: block;
-  transform: scale(1.01);
 }
 
 .cab-badges {
   position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 12px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -64,273 +63,230 @@
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #eef7ff;
-  background: rgba(9, 22, 38, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #f8f8ff;
+  background: rgba(13, 18, 31, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .cab-badge.rating {
-  color: #ffd86b;
-  border-color: rgba(255, 216, 107, 0.35);
+  color: #ffe9b7;
 }
 
 .cab-title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .cab-info h2 {
-  margin-bottom: 6px;
+  font-size: 1.45rem;
 }
 
 .license-pill {
-  padding: 6px 12px;
+  padding: 6px 11px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-accent);
-  background: rgba(0, 180, 255, 0.15);
-  border: 1px solid rgba(0, 180, 255, 0.3);
+  color: #ffd6c8;
+  border: 1px solid rgba(255, 131, 103, 0.5);
+  background: rgba(255, 131, 103, 0.14);
 }
 
 .cab-stats {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .stat {
-  display: flex;
-  align-items: center;
+  display: inline-flex;
   gap: 6px;
-  background: rgba(0, 180, 255, 0.12);
+  align-items: center;
   padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-soft);
+  font-size: 0.87rem;
 }
 
 .cab-pricing {
-  margin-top: 16px;
+  margin-top: 14px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .price-item {
-  background: rgba(9, 22, 38, 0.7);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   color: var(--color-text-soft);
   font-size: 0.85rem;
 }
 
 .price-item strong {
-  color: var(--color-text);
+  color: #ffc24d;
   font-size: 1.05rem;
-  font-weight: 700;
 }
 
-/* FORM */
 .booking-form {
-  background: var(--color-surface);
-  border-radius: 20px;
-  padding: 30px;
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--color-border);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 18px;
+  gap: 7px;
 }
 
 .form-group label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
-  color: var(--color-text-muted);
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
 }
 
-.form-group input {
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  background: rgba(11, 29, 54, 0.9);
-  color: white;
-}
-
-/* PRICE */
-.price-breakdown {
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-}
-
-.breakdown-row.total {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--color-accent);
-}
-
-/* MAP SECTION */
-.map-section {
-  background: var(--color-surface);
-  border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(14px);
-  margin-bottom: 30px;
-  grid-column: 1 / -1;
-  border: 1px solid var(--color-border);
-}
-
-.map-section h3 {
-  margin-bottom: 15px;
-  color: var(--color-text-muted);
-}
-
-.map-section > div {
-  height: 100px;
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-/* BUTTON */
-.confirm-btn {
+.form-group input,
+.location-input-styled {
   width: 100%;
-  margin-top: 25px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
+  padding: 11px 12px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #00b4ff, #0066ff);
-  color: white;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--color-text);
 }
 
-.confirm-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0, 180, 255, 0.4);
-}
-
-/* LOCATION PICKER SIMPLE */
-.location-picker-simple {
-  width: 100%;
+.form-group input:focus,
+.location-input-styled:focus {
+  outline: none;
+  border-color: rgba(255, 131, 103, 0.8);
+  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.16);
 }
 
 .location-picker-input-group {
   position: relative;
 }
 
-.location-input-styled {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  background: #0b1d36;
-  color: white;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.location-input-styled:focus {
-  background: rgba(15, 42, 74, 0.95);
-  box-shadow: 0 0 0 3px rgba(0, 180, 255, 0.2);
-}
-
-.location-input-styled::placeholder {
-  color: var(--color-text-soft);
-}
-
 .clear-btn-simple {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
   border: none;
-  color: var(--color-accent);
-  font-size: 1.2rem;
+  background: transparent;
+  color: #ffd6c8;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 4px 8px;
-  transition: all 0.2s ease;
-}
-
-.clear-btn-simple:hover {
-  color: var(--color-accent-2);
-  transform: translateY(-50%) scale(1.1);
 }
 
 .suggestions-dropdown-simple {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: rgba(11, 29, 54, 0.95);
-  border: 1px solid var(--color-border);
-  border-top: none;
-  border-radius: 0 0 10px 10px;
-  max-height: 250px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(14, 21, 34, 0.96);
+  max-height: 230px;
   overflow-y: auto;
-  z-index: 100;
-  margin-top: -1px;
+  z-index: 20;
 }
 
 .suggestion-item-simple {
   width: 100%;
-  padding: 12px;
-  background: none;
+  text-align: left;
+  padding: 10px 12px;
   border: none;
   color: var(--color-text-muted);
-  text-align: left;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
 }
 
 .suggestion-item-simple:hover {
-  background: rgba(0, 180, 255, 0.2);
-  padding-left: 20px;
-  color: var(--color-accent);
+  background: rgba(255, 131, 103, 0.14);
+  color: #ffe0d7;
 }
 
-.suggestion-item-simple:first-child {
-  border-radius: 0;
+.price-breakdown {
+  grid-column: 1 / -1;
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.suggestion-item-simple:last-child {
-  border-radius: 0 0 10px 10px;
+.price-breakdown h3 {
+  margin-bottom: 10px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-soft);
+  margin-bottom: 8px;
+}
+
+.breakdown-row.total {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffc24d;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.confirm-btn {
+  grid-column: 1 / -1;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  background: linear-gradient(120deg, #ff8367, #ffc24d);
+  color: #2d1d17;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.map-section {
+  grid-column: 1 / -1;
+}
+
+.map-section h3 {
+  margin-bottom: 12px;
+  color: var(--color-text-soft);
+}
+
+.map-section > div {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+@media (max-width: 980px) {
   .booking-content {
     grid-template-columns: 1fr;
   }
+}
 
-  .cab-image {
-    height: 200px;
+@media (max-width: 700px) {
+  .booking-page {
+    padding: 26px 12px 60px;
+  }
+
+  .booking-form {
+    grid-template-columns: 1fr;
   }
 
   .cab-pricing {

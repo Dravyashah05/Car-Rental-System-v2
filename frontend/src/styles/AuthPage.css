@@ -1,64 +1,65 @@
-.auth-page {
+﻿.auth-page {
   min-height: calc(100vh - 140px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 20px 64px;
-  background: radial-gradient(circle at top, rgba(0, 180, 255, 0.18), transparent 55%),
-    linear-gradient(140deg, rgba(0, 102, 255, 0.2), rgba(11, 29, 54, 0.9));
+  display: grid;
+  place-items: center;
+  padding: 46px 20px 66px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 131, 103, 0.2), transparent 46%),
+    radial-gradient(circle at bottom right, rgba(255, 196, 77, 0.16), transparent 45%);
 }
 
 .auth-card {
-  width: min(480px, 100%);
-  background: rgba(8, 26, 51, 0.78);
+  width: min(520px, 100%);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--color-border);
   border-radius: 22px;
-  padding: 32px;
+  padding: 30px;
   box-shadow: var(--shadow-strong);
-  backdrop-filter: blur(14px);
 }
 
 .auth-header h1 {
-  font-size: 2rem;
+  font-size: clamp(1.8rem, 3vw, 2.35rem);
   margin-bottom: 8px;
 }
 
 .auth-header p {
   color: var(--color-text-soft);
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .auth-alert {
-  padding: 12px 14px;
+  margin-bottom: 16px;
   border-radius: 12px;
-  background: rgba(244, 67, 54, 0.18);
-  border: 1px solid rgba(244, 67, 54, 0.4);
-  color: #ffb4a9;
-  margin-bottom: 18px;
-  font-size: 0.95rem;
+  padding: 11px 12px;
+  color: #ffd8de;
+  background: rgba(255, 109, 136, 0.18);
+  border: 1px solid rgba(255, 109, 136, 0.38);
 }
 
 .auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  gap: 14px;
 }
 
 .auth-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.95rem;
+  display: grid;
+  gap: 7px;
   color: var(--color-text-soft);
+  font-size: 0.92rem;
 }
 
 .auth-field input {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
   color: var(--color-text);
-  font-size: 1rem;
+  padding: 11px 12px;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: rgba(255, 131, 103, 0.8);
+  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.16);
 }
 
 .auth-password {
@@ -69,49 +70,28 @@
 
 .auth-password input {
   width: 100%;
-  padding-right: 78px;
+  padding-right: 68px;
 }
 
 .auth-toggle {
   position: absolute;
-  right: 12px;
+  right: 9px;
   border: none;
   background: transparent;
-  color: var(--color-accent);
-  font-weight: 600;
-  font-size: 0.9rem;
+  color: #ffd6c8;
+  font-weight: 700;
   cursor: pointer;
-  padding: 6px 8px;
-}
-
-.auth-toggle:focus-visible {
-  outline: 2px solid rgba(0, 180, 255, 0.6);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-.auth-field input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(0, 180, 255, 0.2);
 }
 
 .auth-button {
   margin-top: 8px;
   border: none;
-  border-radius: 14px;
-  padding: 12px 18px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #051226;
-  background: linear-gradient(120deg, #00b4ff, #00d4ff);
+  border-radius: 12px;
+  padding: 12px;
+  background: linear-gradient(120deg, #ff8367, #ffc24d);
+  color: #2a1b14;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.auth-button:hover:enabled {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 180, 255, 0.35);
 }
 
 .auth-button:disabled {
@@ -120,30 +100,24 @@
 }
 
 .auth-footer {
-  margin-top: 22px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 8px;
-  font-size: 0.95rem;
   color: var(--color-text-soft);
 }
 
 .auth-footer a {
-  color: var(--color-accent);
-  text-decoration: none;
-  font-weight: 600;
+  color: #ffd6c8;
+  font-weight: 700;
 }
 
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 600px) {
-  .auth-card {
-    padding: 24px;
+@media (max-width: 640px) {
+  .auth-page {
+    padding: 24px 12px 54px;
   }
 
-  .auth-header h1 {
-    font-size: 1.6rem;
+  .auth-card {
+    padding: 22px;
   }
 }
