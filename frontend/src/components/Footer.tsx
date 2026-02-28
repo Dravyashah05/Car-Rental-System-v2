@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
   const handleSubscribe = (event: React.FormEvent) => {
     event.preventDefault();
     if (!email.trim()) return;
-    alert('Subscribed successfully. You will receive weekly ride offers.');
+    alert('Subscribed successfully. You will receive weekly car rental offers.');
     setEmail('');
   };
 
@@ -26,8 +26,8 @@ const Footer: React.FC = () => {
       <div className="footer-shell">
         <div className="footer-content">
           <div className="footer-section brand">
-            <h4>CityRide</h4>
-            <p>Premium rides for every trip. Book faster, ride safer.</p>
+            <h4>CarRental</h4>
+            <p>Premium cars for every trip. Book faster, rent safer.</p>
             <div className="footer-contact">
               <span><FaPhone /> +91 1234 567 890</span>
               <span><FaEnvelope /> support@cabrental.com</span>
@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
             <h4>Quick Links</h4>
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/cabs">Browse Cabs</Link></li>
+              <li><Link to="/cabs">Browse Cars</Link></li>
               <li><Link to="/bookings">My Bookings</Link></li>
               <li><Link to="/profile">Profile</Link></li>
             </ul>
@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
 
           <div className="footer-section footer-feature">
             <h4>Weekly Offers</h4>
-            <p>Get promo codes and city ride updates directly in your inbox.</p>
+            <p>Get promo codes and car rental updates directly in your inbox.</p>
             <form className="footer-subscribe" onSubmit={handleSubscribe}>
               <input
                 type="email"
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <p>(c) {new Date().getFullYear()} CityRide Service. All rights reserved.</p>
+          <p>(c) {new Date().getFullYear()} CarRental Service. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -87,4 +87,6 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
+
+
 

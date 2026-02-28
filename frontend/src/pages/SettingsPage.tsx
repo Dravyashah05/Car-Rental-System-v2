@@ -87,7 +87,7 @@ const SettingsPage: React.FC = () => {
             <h2>Privacy</h2>
             <label className="settings-toggle">
               <input type="checkbox" checked={settings.shareHistory} onChange={() => toggle('shareHistory')} />
-              <span>Share ride history with support</span>
+              <span>Share rental history with support</span>
             </label>
             <label className="settings-toggle">
               <input
@@ -127,3 +127,5 @@ const SettingsPage: React.FC = () => {
 };
 
 export default SettingsPage;
+
+

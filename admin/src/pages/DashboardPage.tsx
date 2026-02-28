@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
+﻿import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { apiFetch } from '../services/api'
 
 type RideStatus =
@@ -167,8 +167,8 @@ function DashboardPage() {
     {
       label: 'Avg. dispatch wait',
       value: `${avgWaitMinutes} min`,
-      note: `${activeRides.length} rides in progress`,
-      trend: `${rides.length} total rides`,
+      note: `${activeRides.length} rentals in progress`,
+      trend: `${rides.length} total rentals`,
       trendDirection: 'down',
     },
     {
@@ -226,19 +226,19 @@ function DashboardPage() {
           <p className="hero-note">
             {summaryError
               ? summaryError
-              : `Tracking ${rides.length} rides and ${drivers.length} drivers today.`}
+              : `Tracking ${rides.length} rentals and ${drivers.length} drivers today.`}
           </p>
         </div>
         <div className="hero-stats">
           <div className="stat-card">
-            <p>Active rides</p>
+            <p>Active rentals</p>
             <h3>{activeRides.length}</h3>
-            <span className="trend up">{rides.length} total rides</span>
+            <span className="trend up">{rides.length} total rentals</span>
           </div>
           <div className="stat-card">
             <p>Avg. wait time</p>
             <h3>{avgWaitMinutes}m</h3>
-            <span className="trend down">Based on active rides</span>
+            <span className="trend down">Based on active rentals</span>
           </div>
           <div className="stat-card">
             <p>Driver availability</p>
@@ -267,7 +267,7 @@ function DashboardPage() {
         <div className="kpi">
           <p>Revenue today</p>
           <h2>Rs. {revenueToday.toFixed(2)}</h2>
-          <span className="badge">{completedRides.length} completed rides</span>
+          <span className="badge">{completedRides.length} completed rentals</span>
         </div>
         <div className="kpi">
           <p>Completed (7d)</p>
@@ -277,7 +277,7 @@ function DashboardPage() {
         <div className="kpi">
           <p>Cancellation rate</p>
           <h2>{cancellationRate.toFixed(1)}%</h2>
-          <span className="badge danger">{cancelledRides.length} cancelled rides</span>
+          <span className="badge danger">{cancelledRides.length} cancelled rentals</span>
         </div>
         <div className="kpi">
           <p>Total users</p>
@@ -402,7 +402,7 @@ function DashboardPage() {
               <span className="muted">{drivers.length} total drivers</span>
             </div>
             <div>
-              <p>Active rides</p>
+              <p>Active rentals</p>
               <strong>{activeRides.length}</strong>
               <span className="muted">In progress now</span>
             </div>
@@ -525,3 +525,5 @@ function DashboardPage() {
 }
 
 export default DashboardPage
+
+

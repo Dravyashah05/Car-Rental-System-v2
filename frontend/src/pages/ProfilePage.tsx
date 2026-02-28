@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FaCar,
@@ -315,12 +315,12 @@ const ProfilePage: React.FC = () => {
               <Link to="/bookings" className="profile-action">
                 <span className="profile-action__icon"><FaCalendarCheck /></span>
                 View bookings
-                <span>Track upcoming rides</span>
+                <span>Track upcoming rentals</span>
               </Link>
               <Link to="/cabs" className="profile-action">
                 <span className="profile-action__icon"><FaCar /></span>
                 Browse cabs
-                <span>Find your next ride</span>
+                <span>Find your next rental car</span>
               </Link>
               <Link to="/settings" className="profile-action">
                 <span className="profile-action__icon"><FaSlidersH /></span>
@@ -340,7 +340,7 @@ const ProfilePage: React.FC = () => {
             <ul className="profile-feature-list">
               <li>Saved locations and favorites</li>
               <li>Payment methods</li>
-              <li>Ride preferences</li>
+              <li>Rental preferences</li>
             </ul>
           </div>
         </aside>
@@ -350,3 +350,5 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
+
+

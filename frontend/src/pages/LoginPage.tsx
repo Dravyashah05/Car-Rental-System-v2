@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AuthPage.css';
@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Welcome back</h1>
-          <p>Log in to manage your bookings and rides.</p>
+          <p>Log in to manage your bookings and rentals.</p>
         </div>
 
         {error && <div className="auth-alert">{error}</div>}
@@ -95,3 +95,5 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
+

@@ -60,15 +60,15 @@ const CabsPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading cabs...</div>;
+    return <div className="loading">Loading cars...</div>;
   }
 
   return (
     <div className="cabs-page">
       <div className="cabs-container">
         <header className="cabs-header">
-          <h1>Browse Available Cabs</h1>
-          <p>Use smart filters and sort to find the right ride for your trip.</p>
+          <h1>Browse Available Cars</h1>
+          <p>Use smart filters and sort to find the right rental car for your trip.</p>
         </header>
 
         <div className="cabs-content">
@@ -137,7 +137,7 @@ const CabsPage: React.FC = () => {
               visibleCabs.map((cab) => <CabCard key={cab.id} cab={cab} />)
             ) : (
               <div className="no-results">
-                <p>No cabs found matching your criteria.</p>
+                <p>No cars found matching your criteria.</p>
                 <p>Try adjusting your filters.</p>
               </div>
             )}
@@ -145,7 +145,7 @@ const CabsPage: React.FC = () => {
         </div>
 
         <div className="cabs-stats">
-          <p>Total Available in CityRide: {cabs.length}</p>
+          <p>Total Available Cars: {cabs.length}</p>
           <p>Matching Filters: {visibleCabs.length}</p>
         </div>
       </div>
@@ -154,4 +154,6 @@ const CabsPage: React.FC = () => {
 };
 
 export default CabsPage;
+
+
 

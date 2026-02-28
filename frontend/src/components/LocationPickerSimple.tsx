@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useId } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import '../styles/LocationPicker.css';
 import locationsData from '../data/locations.json';
 
@@ -15,7 +15,6 @@ const LocationPickerSimple: React.FC<LocationPickerSimpleProps> = ({
   onChange,
   placeholder = 'Enter location',
 }) => {
-  const listId = useId();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,10 +33,7 @@ const LocationPickerSimple: React.FC<LocationPickerSimpleProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
       }
     };
@@ -65,7 +61,7 @@ const LocationPickerSimple: React.FC<LocationPickerSimpleProps> = ({
           className="location-input-styled"
           placeholder={placeholder}
           value={value}
-          list={listId}
+          autoComplete="off"
           onChange={(e) => {
             onChange(e.target.value);
             setShowSuggestions(true);
@@ -73,24 +69,21 @@ const LocationPickerSimple: React.FC<LocationPickerSimpleProps> = ({
           onFocus={() => setShowSuggestions(true)}
           onClick={() => setShowSuggestions(true)}
         />
-        <datalist id={listId}>
-          {suggestions.map((suggestion) => (
-            <option key={suggestion} value={suggestion} />
-          ))}
-        </datalist>
+
         {value && (
           <button
             type="button"
             className="clear-btn-simple"
             onClick={handleClear}
             title="Clear"
+            aria-label="Clear location"
           >
-            ✕
+            ×
           </button>
         )}
 
         {showSuggestions && suggestions.length > 0 && (
-          <div className="suggestions-dropdown-simple">
+          <div className="suggestions-dropdown-simple" role="listbox">
             {suggestions.map((suggestion) => (
               <button
                 key={suggestion}
@@ -98,7 +91,8 @@ const LocationPickerSimple: React.FC<LocationPickerSimpleProps> = ({
                 className="suggestion-item-simple"
                 onClick={() => handleSuggestionClick(suggestion)}
               >
-                📍 {suggestion}
+                <span className="suggestion-icon" aria-hidden="true">📍</span>
+                <span>{suggestion}</span>
               </button>
             ))}
           </div>

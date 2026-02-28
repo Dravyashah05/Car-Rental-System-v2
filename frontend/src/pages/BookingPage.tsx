@@ -12,9 +12,6 @@ import {
 } from 'react-icons/fa';
 import MapComponent from '../components/MapComponent';
 import LocationPickerSimple from '../components/LocationPickerSimple';
-import { useAuth } from '../context/AuthContext';
-import { useBooking } from '../context/BookingContext';
-import { authService } from '../services/authService';
 import { cabService } from '../services/cabService';
 import type { Cab } from '../types';
 import '../styles/BookingPage.css';
@@ -22,12 +19,9 @@ import '../styles/BookingPage.css';
 const BookingPage: React.FC = () => {
   const { cabId } = useParams<{ cabId: string }>();
   const navigate = useNavigate();
-  const { addBooking } = useBooking();
-  const { currentUser } = useAuth();
 
   const [cab, setCab] = useState<Cab | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     pickupLocation: '',
@@ -67,109 +61,112 @@ const BookingPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!cab) return;
-
-    const token = localStorage.getItem('authToken');
-    if (!currentUser || !token) {
-      navigate('/login', { state: { from: `/book/${cabId ?? ''}` } });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const booking = await cabService.createBooking({
-        cabId: cab.id,
-        ...formData,
-        totalPrice,
-      });
-      addBooking(booking);
-      navigate('/bookings');
-    } catch (err) {
-      console.error('Create booking failed:', err);
-      const status =
-        err && typeof err === 'object' && 'status' in err && typeof (err as { status: number }).status === 'number'
-          ? (err as { status: number }).status
-          : undefined;
-      if (status === 401) {
-        authService.logout();
-        navigate('/login', { state: { from: `/book/${cabId ?? ''}` } });
-        return;
-      }
-      const message =
-        err && typeof err === 'object' && 'message' in err && typeof (err as { message: string }).message === 'string'
-          ? (err as { message: string }).message
-          : 'Failed to create booking';
-      alert(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!formData.pickupLocation) e.pickupLocation = 'Pickup required';
+    if (!formData.dropoffLocation) e.dropoffLocation = 'Dropoff required';
+    return Object.keys(e).length === 0;
   };
 
-  if (loading) return <div className="loading">Loading cab details...</div>;
-  if (!cab) return <div className="error">Cab not found</div>;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cab) return;
+    const ok = validate();
+    if (!ok) return;
+
+    const bookingPayload = {
+      cabId: cab.id,
+      pickupLocation: formData.pickupLocation,
+      dropoffLocation: formData.dropoffLocation,
+      pickupDate: formData.pickupDate,
+      pickupTime: formData.pickupTime,
+      estimatedDistance: formData.estimatedDistance,
+      estimatedDuration: formData.estimatedDuration,
+      totalPrice,
+      paymentMethod: 'pending',
+      paymentStatus: 'pending',
+    } as const;
+
+    navigate('/payments', { state: { bookingPayload, totalPrice } });
+  };
+
+  if (loading) return <div className="loading">Loading car details...</div>;
+  if (!cab) return <div className="error">Car not found</div>;
 
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="booking-page">
       <div className="booking-container">
-        <h1>Book Your Ride</h1>
+        <div className="booking-page-header">
+          <h1>Book Your Car</h1>
+          <p>Set your route, choose date and time, and continue to secure payment.</p>
+        </div>
 
         <div className="booking-content">
-          <div className="cab-summary panel-card">
-            <div className="cab-media">
-              <img src={cab.image} alt={cab.model} className="cab-image" />
-              <div className="cab-badges">
-                <span className="cab-badge rating">
-                  <FaStar /> {cab.rating}
-                </span>
-                <span className="cab-badge price">Rs. {cab.pricePerKm}/km</span>
-                <span className="cab-badge price">Rs. {cab.pricePerHour}/hr</span>
+          <div className="left-column">
+            {formData.pickupLocation && formData.dropoffLocation && (
+              <div className="map-section panel-card">
+                <h3>Trip Preview</h3>
+                <MapComponent
+                  pickupLocation={formData.pickupLocation}
+                  dropoffLocation={formData.dropoffLocation}
+                />
               </div>
-            </div>
-            <div className="cab-info">
-              <div className="cab-title-row">
-                <h2>
-                  {cab.make} {cab.model}
-                </h2>
-                <span className="license-pill">{cab.licensePlate}</span>
-              </div>
+            )}
 
-              <div className="cab-stats">
-                <div className="stat">
-                  <FaChair /> <span>{cab.seats} Seats</span>
-                </div>
-                <div className="stat">
-                  <FaGasPump /> <span>{cab.fuelType}</span>
+            <div className="cab-summary panel-card">
+              <div className="cab-media">
+                <img src={cab.image} alt={cab.model} className="cab-image" />
+                <div className="cab-badges">
+                  <span className="cab-badge rating">
+                    <FaStar /> {cab.rating}
+                  </span>
+                  <span className="cab-badge price">Rs. {cab.pricePerKm}/km</span>
+                  <span className="cab-badge price">Rs. {cab.pricePerHour}/hr</span>
                 </div>
               </div>
-
-              <div className="cab-pricing">
-                <div className="price-item">
-                  <span>Per km</span>
-                  <strong>Rs. {cab.pricePerKm}</strong>
+              <div className="cab-info">
+                <div className="cab-title-row">
+                  <h2>
+                    {cab.make} {cab.model}
+                  </h2>
+                  <span className="license-pill">{cab.licensePlate}</span>
                 </div>
-                <div className="price-item">
-                  <span>Per hour</span>
-                  <strong>Rs. {cab.pricePerHour}</strong>
+
+                <div className="cab-stats">
+                  <div className="stat">
+                    <FaChair /> <span>{cab.seats} Seats</span>
+                  </div>
+                  <div className="stat">
+                    <FaGasPump /> <span>{cab.fuelType}</span>
+                  </div>
+                </div>
+
+                <div className="cab-pricing">
+                  <div className="price-item">
+                    <span>Per km</span>
+                    <strong>Rs. {cab.pricePerKm}</strong>
+                  </div>
+                  <div className="price-item">
+                    <span>Per hour</span>
+                    <strong>Rs. {cab.pricePerHour}</strong>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {formData.pickupLocation && formData.dropoffLocation && (
-            <div className="map-section panel-card">
-              <h3>Trip Preview</h3>
-              <MapComponent
-                pickupLocation={formData.pickupLocation}
-                dropoffLocation={formData.dropoffLocation}
-              />
-            </div>
-          )}
-
           <form className="booking-form panel-card" onSubmit={handleSubmit}>
+            <div className="booking-form-head">
+              <h3>Trip Details</h3>
+              <span>Estimated fare</span>
+            </div>
+            <div className="booking-total-pill">
+              <span>Total</span>
+              <strong>Rs. {totalPrice.toFixed(2)}</strong>
+            </div>
+
             <div className="form-group">
               <label>
                 <FaMapMarkerAlt /> Pickup Location
@@ -266,9 +263,7 @@ const BookingPage: React.FC = () => {
               </div>
             </div>
 
-            <button className="confirm-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
-            </button>
+            <button className="confirm-btn">Continue to Payment</button>
           </form>
         </div>
       </div>

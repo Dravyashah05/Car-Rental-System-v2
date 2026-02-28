@@ -8,6 +8,7 @@ import HomePage from './pages/HomePage';
 import CabsPage from './pages/CabsPage';
 import BookingPage from './pages/BookingPage';
 import BookingsPage from './pages/BookingsPage';
+import PaymentsPage from './pages/PaymentsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
@@ -56,6 +57,7 @@ function App() {
               <Route path="/cabs" element={<CabsPage />} />
               <Route path="/book/:cabId" element={<BookingPage />} />
               <Route path="/bookings" element={<BookingsPage />} />
+              <Route path="/payments" element={<PaymentsPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/profile" element={<ProfilePage />} />

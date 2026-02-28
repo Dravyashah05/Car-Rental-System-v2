@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 
@@ -12,7 +12,7 @@ const pageMeta: Record<
   },
   '/bookings': {
     title: 'Bookings Center',
-    subtitle: 'Review, assign, and manage ride bookings.',
+    subtitle: 'Review, assign, and manage car rental bookings.',
   },
   '/drivers': {
     title: 'Driver Operations',
@@ -108,7 +108,7 @@ function Layout({ onLogout }: { onLogout: () => void }) {
           <div className="brand">
             <div className="brand-mark">CR</div>
             <div>
-              <p className="brand-title">CityRide Admin</p>
+              <p className="brand-title">CarRental Admin</p>
               <p className="brand-subtitle">Car Rental System</p>
             </div>
           </div>
@@ -218,7 +218,7 @@ function Layout({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="topbar-actions">
             <div className="search">
-              <input placeholder="Rider, booking, or vehicle" />
+              <input placeholder="Customer, booking, or vehicle" />
             </div>
             <div className="topbar-date">
               {today.toLocaleDateString('en-US', {
@@ -241,3 +241,5 @@ function Layout({ onLogout }: { onLogout: () => void }) {
 }
 
 export default Layout
+
+

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../services/api'
 import '../styles/UsersPage.css'
 
@@ -124,7 +124,7 @@ function UsersPage() {
           <span className="muted">Verified partners</span>
         </div>
         <div className="info-card users-info-card">
-          <p>Riders</p>
+          <p>Customers</p>
           <h3>{stats.riders}</h3>
           <span className="muted">Customer accounts</span>
         </div>
@@ -312,3 +312,5 @@ function UsersPage() {
 }
 
 export default UsersPage
+
+

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../services/api'
 
 type Ride = {
@@ -112,7 +112,7 @@ function BookingsPage() {
         <div className="info-card">
           <p>Total bookings</p>
           <h3>{stats.total}</h3>
-          <span className="muted">All ride requests</span>
+          <span className="muted">All rental requests</span>
         </div>
         <div className="info-card">
           <p>Pending assignment</p>
@@ -120,12 +120,12 @@ function BookingsPage() {
           <span className="muted">Waiting for driver</span>
         </div>
         <div className="info-card">
-          <p>Active rides</p>
+          <p>Active rentals</p>
           <h3>{stats.active}</h3>
           <span className="muted">Assigned or in progress</span>
         </div>
         <div className="info-card">
-          <p>Completed rides</p>
+          <p>Completed rentals</p>
           <h3>{stats.completed}</h3>
           <span className="muted">Finished bookings</span>
         </div>
@@ -135,7 +135,7 @@ function BookingsPage() {
         <div className="panel-header">
           <div>
             <h3>Bookings</h3>
-            <p>Monitor rides and manage status updates</p>
+            <p>Monitor rentals and manage status updates</p>
           </div>
           <button className="ghost">Assign driver</button>
         </div>
@@ -149,7 +149,7 @@ function BookingsPage() {
           <div className="table">
             <div className="table-row table-head">
               <span>Booking</span>
-              <span>Rider</span>
+              <span>Customer</span>
               <span>Route</span>
               <span>Status</span>
               <span>Action</span>
@@ -189,24 +189,24 @@ function BookingsPage() {
             <div className="modal-header">
               <div>
                 <h3>Booking details</h3>
-                <p className="muted">Trip, rider, and status information.</p>
+                <p className="muted">Trip, customer, and status information.</p>
               </div>
               <span className="tag">Booking {selectedRide._id.slice(-8).toUpperCase()}</span>
             </div>
             <div className="detail-hero">
               <div className="detail-hero-media">BK</div>
               <div>
-                <h4>{selectedRide.rider?.name ?? 'Unknown rider'}</h4>
+                <h4>{selectedRide.rider?.name ?? 'Unknown customer'}</h4>
                 <p className="muted">{selectedRide.rider?.email ?? 'No email'}</p>
               </div>
             </div>
             <div className="modal-body detail-grid">
               <div className="detail-item">
-                <span className="detail-label"><span className="detail-icon">RD</span>Rider</span>
+                <span className="detail-label"><span className="detail-icon">RD</span>Customer</span>
                 <strong>{selectedRide.rider?.name ?? selectedRide.rider?.email ?? 'Unknown'}</strong>
               </div>
               <div className="detail-item">
-                <span className="detail-label"><span className="detail-icon">@</span>Rider email</span>
+                <span className="detail-label"><span className="detail-icon">@</span>Customer email</span>
                 <strong>{selectedRide.rider?.email ?? 'N/A'}</strong>
               </div>
               <div className="detail-item">
@@ -265,3 +265,5 @@ function BookingsPage() {
 }
 
 export default BookingsPage
+
+

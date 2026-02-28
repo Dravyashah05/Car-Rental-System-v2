@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../services/api'
 
 type RidePayment = {
@@ -136,15 +136,15 @@ function PaymentsPage() {
         <div className="info-card">
           <p>Total collected</p>
           <h3>{formatAmount(totals.collected)}</h3>
-          <span className="muted">Completed rides</span>
+          <span className="muted">Completed rentals</span>
         </div>
         <div className="info-card">
           <p>Pending payouts</p>
           <h3>{formatAmount(totals.pending)}</h3>
-          <span className="muted">Active & assigned rides</span>
+          <span className="muted">Active & assigned rentals</span>
         </div>
         <div className="info-card">
-          <p>Cancelled rides</p>
+          <p>Cancelled rentals</p>
           <h3>{formatAmount(totals.cancelled)}</h3>
           <span className="muted">Cancelled payments</span>
         </div>
@@ -154,7 +154,7 @@ function PaymentsPage() {
         <div className="panel-header">
           <div>
             <h3>All payments</h3>
-            <p>Every ride fare recorded in the system</p>
+            <p>Every rental fare recorded in the system</p>
           </div>
           <button className="ghost" onClick={() => window.location.reload()}>
             Refresh
@@ -170,7 +170,7 @@ function PaymentsPage() {
           <div className="table">
             <div className="table-row table-head">
               <span>Booking</span>
-              <span>Rider</span>
+              <span>Customer</span>
               <span>Route</span>
               <span>Amount</span>
               <span>Status</span>
@@ -212,20 +212,20 @@ function PaymentsPage() {
             <div className="modal-header">
               <div>
                 <h3>Payment details</h3>
-                <p className="muted">Fare, route, rider, and settlement status.</p>
+                <p className="muted">Fare, route, customer, and settlement status.</p>
               </div>
               <span className="tag">Booking {selectedPayment._id.slice(-8).toUpperCase()}</span>
             </div>
             <div className="detail-hero">
               <div className="detail-hero-media">PY</div>
               <div>
-                <h4>{selectedPayment.rider?.name ?? 'Unknown rider'}</h4>
+                <h4>{selectedPayment.rider?.name ?? 'Unknown customer'}</h4>
                 <p className="muted">{selectedPayment.rider?.email ?? 'No email'}</p>
               </div>
             </div>
             <div className="modal-body detail-grid">
               <div className="detail-item">
-                <span className="detail-label"><span className="detail-icon">RD</span>Rider</span>
+                <span className="detail-label"><span className="detail-icon">RD</span>Customer</span>
                 <strong>{selectedPayment.rider?.name ?? selectedPayment.rider?.email ?? 'Unknown'}</strong>
               </div>
               <div className="detail-item">
@@ -298,3 +298,5 @@ function PaymentsPage() {
 }
 
 export default PaymentsPage
+
+

@@ -7,6 +7,13 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const { currentUser } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const savedTheme = window.localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
 
   const isActive = (path: string) => location.pathname === path;
   const roleLabel = currentUser?.role ? currentUser.role.toUpperCase() : 'USER';
@@ -15,12 +22,17 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    window.localStorage.setItem('theme', theme);
+  }, [theme]);
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo" aria-label="CityRide home">
-          <span className="logo-dot" />
-          CityRide
+        <Link to="/" className="navbar-logo" aria-label="CarRental home">
+          <img src="/logo.png" alt="CarRental logo" className="logo-image" />
+          CarRental
         </Link>
 
         <button
@@ -43,7 +55,7 @@ const Navbar: React.FC = () => {
             </li>
             <li className="nav-item">
               <Link to="/cabs" className={`nav-link ${isActive('/cabs') ? 'active' : ''}`}>
-                Browse Cabs
+                Browse Cars
               </Link>
             </li>
             <li className="nav-item">
@@ -54,6 +66,13 @@ const Navbar: React.FC = () => {
           </ul>
 
           <div className="nav-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+            >
+              {theme === 'dark' ? 'Light mode' : 'Night mode'}
+            </button>
             {currentUser ? (
               <>
                 <Link to="/profile" className={`nav-profile ${isActive('/profile') ? 'active' : ''}`}>
@@ -86,4 +105,6 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
+
 

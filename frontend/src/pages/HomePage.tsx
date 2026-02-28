@@ -20,8 +20,8 @@ import SearchForm from '../components/SearchForm';
 import '../styles/HomePage.css';
 
 const stats = [
-  { label: 'Happy Riders', value: '25K+' },
-  { label: 'Daily Trips', value: '4.8K+' },
+  { label: 'Happy Customers', value: '25K+' },
+  { label: 'Daily Rentals', value: '4.8K+' },
   { label: 'Active Cars', value: '500+' },
   { label: 'Average Rating', value: '4.9/5' },
 ];
@@ -34,12 +34,12 @@ const howItWorks = [
   },
   {
     title: 'Select Date & Car',
-    description: 'Pick your schedule and find the cab that matches your budget.',
+    description: 'Pick your schedule and find the car that matches your budget.',
     icon: FaCalendarCheck,
   },
   {
-    title: 'Confirm & Ride',
-    description: 'Book instantly and track your ride with reliable updates.',
+    title: 'Confirm & Rent',
+    description: 'Book instantly and track your rental with reliable updates.',
     icon: FaRoute,
   },
 ];
@@ -58,7 +58,7 @@ const testimonials = [
   {
     name: 'Riya Verma',
     role: 'Student',
-    quote: 'Safe rides at student-friendly prices. Support team is genuinely helpful.',
+    quote: 'Safe rentals at student-friendly prices. Support team is genuinely helpful.',
   },
 ];
 
@@ -89,11 +89,11 @@ const HomePage: React.FC = () => {
       <section className="hero-section">
         <div className="hero-content section-container">
           <span className="hero-chip">Smart City Mobility</span>
-          <h1>Book bright. Ride right. Reach faster.</h1>
-          <p>Plan city rides in seconds with transparent fares and verified drivers.</p>
+          <h1>Book smart. Rent right. Reach faster.</h1>
+          <p>Plan car rentals in seconds with transparent fares and verified drivers.</p>
 
           <div className="hero-actions">
-            <Link to="/cabs" className="hero-btn primary">Explore Cabs</Link>
+            <Link to="/cabs" className="hero-btn primary">Explore Cars</Link>
             <Link to="/bookings" className="hero-btn ghost">Track Bookings</Link>
           </div>
 
@@ -120,7 +120,7 @@ const HomePage: React.FC = () => {
 
       <section className="search-section">
         <div className="section-container">
-          <h2>Find Your Perfect Ride</h2>
+          <h2>Find Your Perfect Rental Car</h2>
           <SearchForm onSearch={handleSearch} />
         </div>
       </section>
@@ -140,7 +140,7 @@ const HomePage: React.FC = () => {
         <div className="section-container estimator-grid">
           <div className="estimator-panel">
             <h2><FaCalculator /> Quick Fare Estimator</h2>
-            <p>Adjust trip values to preview expected ride fare before booking.</p>
+            <p>Adjust trip values to preview expected rental fare before booking.</p>
 
             <label>
               Distance: {estimator.distanceKm} km
@@ -191,14 +191,14 @@ const HomePage: React.FC = () => {
               <li>Time charge: Rs. {Math.round((estimator.durationMinutes / 60) * estimator.farePerHour)}</li>
               <li>No hidden booking fee</li>
             </ul>
-            <Link to="/cabs" className="hero-btn primary full">Book This Ride</Link>
+            <Link to="/cabs" className="hero-btn primary full">Book This Car</Link>
           </aside>
         </div>
       </section>
 
       <section className="steps-section">
         <div className="section-container">
-          <h2>How CityRide Works</h2>
+          <h2>How CarRental Works</h2>
           <div className="steps-grid">
             {howItWorks.map((step, index) => {
               const Icon = step.icon;
@@ -219,7 +219,7 @@ const HomePage: React.FC = () => {
 
       <section className="info-section">
         <div className="section-container">
-          <h2>Why Choose CityRide?</h2>
+          <h2>Why Choose CarRental?</h2>
 
           <div className="info-grid">
             <div className="info-card">
@@ -263,7 +263,7 @@ const HomePage: React.FC = () => {
 
       <section className="testimonials-section">
         <div className="section-container">
-          <h2>What Riders Say</h2>
+          <h2>What Customers Say</h2>
           <div className="testimonials-grid">
             {testimonials.map((testimonial) => (
               <article className="testimonial-card" key={testimonial.name}>
@@ -280,4 +280,6 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+
 

@@ -18,7 +18,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
         <div className="login-brand">
           <div className="brand-mark">CR</div>
           <div>
-            <p className="brand-title">CityRide Admin</p>
+            <p className="brand-title">CarRental Admin</p>
             <p className="brand-subtitle">Car Rental System</p>
           </div>
         </div>
@@ -55,7 +55,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
             <span>Work email</span>
             <input
               type="email"
-              placeholder="admin@cityride.com"
+              placeholder="admin@carrental.com"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -96,7 +96,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
       <div className="login-panel">
         <div className="panel-card">
           <p className="eyebrow">Operations pulse</p>
-          <h2>Stay on top of every ride</h2>
+          <h2>Stay on top of every rental</h2>
           <p className="muted">
             Monitor live demand, assign drivers, and keep your fleet running smoothly in one
             command center.
@@ -104,7 +104,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
           <div className="login-metrics">
             <div>
               <h3>1,284</h3>
-              <p>Trips completed today</p>
+              <p>Rentals completed today</p>
             </div>
             <div>
               <h3>4m 12s</h3>
@@ -123,3 +123,5 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
 }
 
 export default LoginPage
+
+

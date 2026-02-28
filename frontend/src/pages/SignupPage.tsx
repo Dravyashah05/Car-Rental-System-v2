@@ -54,7 +54,7 @@ const SignupPage: React.FC = () => {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Create your account</h1>
-          <p>Join CityRide to book rides faster.</p>
+          <p>Join CarRental to rent cars faster.</p>
         </div>
 
         {error && <div className="auth-alert">{error}</div>}
@@ -159,3 +159,5 @@ const SignupPage: React.FC = () => {
 };
 
 export default SignupPage;
+
+

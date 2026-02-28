@@ -91,7 +91,7 @@ const BookingsPage: React.FC = () => {
         <div className="bookings-header">
           <div>
             <h1>My Bookings</h1>
-            <p>Track your rides, drivers, and payments in one place.</p>
+            <p>Track your rentals, drivers, and payments in one place.</p>
           </div>
           <div className="bookings-count">
             <span>Total</span>
@@ -120,9 +120,9 @@ const BookingsPage: React.FC = () => {
         ) : counts.all === 0 ? (
           <div className="empty-state">
             <p>No bookings yet</p>
-            <p>Start booking your rides now.</p>
+            <p>Start booking your rental cars now.</p>
             <Link to="/cabs" className="browse-btn">
-              Browse Cabs
+              Browse Cars
             </Link>
           </div>
         ) : (
@@ -241,3 +241,5 @@ const BookingsPage: React.FC = () => {
 };
 
 export default BookingsPage;
+
+

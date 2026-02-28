@@ -105,11 +105,13 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
       </div>
 
       <button type="submit" className="search-btn">
-        Search Cabs
+        Search Cars
       </button>
     </form>
   );
 };
 
 export default SearchForm;
+
+
 
