@@ -1,55 +1,31 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { Booking, User } from '../types';
+import type { Booking } from '../types';
 
 interface BookingContextType {
-  user: User | null;
   bookings: Booking[];
-  setUser: (user: User) => void;
+  setBookings: (bookings: Booking[]) => void;
   addBooking: (booking: Booking) => void;
   cancelBooking: (bookingId: string) => void;
-  logout: () => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const addBooking = (booking: Booking) => {
-    setBookings([...bookings, booking]);
-    if (user) {
-      setUser({
-        ...user,
-        bookings: [...user.bookings, booking],
-      });
-    }
+    setBookings((prev) => [...prev, booking]);
   };
 
   const cancelBooking = (bookingId: string) => {
-    setBookings(
-      bookings.map((b) =>
-        b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-      )
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'cancelled' as const } : b))
     );
-    if (user) {
-      setUser({
-        ...user,
-        bookings: user.bookings.map((b) =>
-          b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-        ),
-      });
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    setBookings([]);
   };
 
   return (
     <BookingContext.Provider
-      value={{ user, bookings, setUser, addBooking, cancelBooking, logout }}
+      value={{ bookings, setBookings, addBooking, cancelBooking }}
     >
       {children}
     </BookingContext.Provider>

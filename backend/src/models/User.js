@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
     gender: { type: String, enum: ["male", "female", "other"] },
     role: {
       type: String,
-      enum: ["user", "driver", "admin"],
+      enum: ["user", "owner", "driver", "admin"],
       default: "user"
     }
   },

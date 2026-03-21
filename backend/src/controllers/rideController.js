@@ -29,11 +29,12 @@ const createRide = asyncHandler(async (req, res) => {
 });
 
 const listRides = asyncHandler(async (req, res) => {
-  const { status, riderId, driverId } = req.query;
+  const { status, riderId, driverId, ownerId } = req.query;
   const filter = {};
   if (status) filter.status = status;
   if (riderId) filter.rider = riderId;
   if (driverId) filter.driver = driverId;
+  if (ownerId) filter.driver = ownerId;
   const rides = await Ride.find(filter)
     .populate("rider", "name email")
     .populate("cab", "make model plateNumber seats imageUrl")
@@ -59,7 +60,7 @@ const getRide = asyncHandler(async (req, res) => {
   const isAdmin = req.user.role === "admin";
   const isRider = ride.rider?._id?.toString() === req.user._id.toString();
   const isDriverUser =
-    req.user.role === "driver" &&
+    (req.user.role === "driver" || req.user.role === "owner") &&
     ride.driver &&
     ride.driver.user &&
     ride.driver.user._id.toString() === req.user._id.toString();
@@ -72,16 +73,20 @@ const getRide = asyncHandler(async (req, res) => {
 });
 
 const assignDriver = asyncHandler(async (req, res) => {
-  const { driverId } = req.body;
+  const { driverId, ownerId } = req.body;
+  const resolvedOwnerId = ownerId || driverId;
+  if (!resolvedOwnerId) {
+    return res.status(400).json({ message: "Owner is required" });
+  }
   const ride = await Ride.findById(req.params.id);
   if (!ride) {
     return res.status(404).json({ message: "Ride not found" });
   }
-  const driver = await Driver.findById(driverId);
+  const driver = await Driver.findById(resolvedOwnerId);
   if (!driver) {
-    return res.status(404).json({ message: "Driver not found" });
+    return res.status(404).json({ message: "Owner not found" });
   }
-  ride.driver = driverId;
+  ride.driver = resolvedOwnerId;
   ride.status = "assigned";
   await ride.save();
   res.json(ride);
@@ -102,10 +107,19 @@ const updateStatus = asyncHandler(async (req, res) => {
   res.json(ride);
 });
 
+const deleteRide = asyncHandler(async (req, res) => {
+  const ride = await Ride.findByIdAndDelete(req.params.id);
+  if (!ride) {
+    return res.status(404).json({ message: "Ride not found" });
+  }
+  res.json({ message: "Ride deleted successfully" });
+});
+
 module.exports = {
   createRide,
   listRides,
   getRide,
   assignDriver,
-  updateStatus
+  updateStatus,
+  deleteRide
 };

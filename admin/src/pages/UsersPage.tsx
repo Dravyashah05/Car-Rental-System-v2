@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 import '../styles/UsersPage.css'
 
@@ -8,7 +9,7 @@ type User = {
   email?: string
   phone?: string
   avatar?: string
-  role?: 'user' | 'driver' | 'admin'
+  role?: 'user' | 'owner' | 'admin'
   createdAt?: string
 }
 
@@ -20,6 +21,7 @@ const formatDate = (value?: string) => {
 }
 
 function UsersPage() {
+  const location = useLocation()
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -45,12 +47,17 @@ function UsersPage() {
     loadUsers()
   }, [])
 
+  const searchQuery = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    return (params.get('q') ?? '').trim().toLowerCase()
+  }, [location.search])
+
   const stats = useMemo(() => {
     const total = users.length
     const admins = users.filter((user) => user.role === 'admin').length
-    const drivers = users.filter((user) => user.role === 'driver').length
+    const owners = users.filter((user) => user.role === 'owner' || user.role === 'driver').length
     const riders = users.filter((user) => user.role === 'user').length
-    return { total, admins, drivers, riders }
+    return { total, admins, owners, riders }
   }, [users])
 
   const handleRoleChange = async (userId: string, nextRole: User['role']) => {
@@ -105,32 +112,69 @@ function UsersPage() {
     }
   }
 
+  const handleDeleteUser = async () => {
+    if (!editingUser) return
+    if (!window.confirm('Are you sure you want to delete this user?')) return
+    setUpdatingId(editingUser._id)
+    setError('')
+    try {
+      await apiFetch(`/api/users/${editingUser._id}`, {
+        method: 'DELETE',
+      })
+      setUsers((prev) => prev.filter((user) => user._id !== editingUser._id))
+      cancelEdit()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to delete user')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery) return users
+    return users.filter((user) => {
+      const haystack = [
+        user.name,
+        user.email,
+        user.phone,
+        user.role,
+        user._id,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(searchQuery)
+    })
+  }, [users, searchQuery])
+
+  const visibleUsers = searchQuery ? filteredUsers : users
+
   return (
     <div className="page users-page">
       <section className="page-grid">
-        <div className="info-card users-info-card">
+        <div className="info-card users-info-card" data-animate data-delay="0">
           <p>Total users</p>
           <h3>{stats.total}</h3>
           <span className="muted">All registered accounts</span>
         </div>
-        <div className="info-card users-info-card">
+        <div className="info-card users-info-card" data-animate data-delay="90">
           <p>Admins</p>
           <h3>{stats.admins}</h3>
           <span className="muted">Platform operators</span>
         </div>
-        <div className="info-card users-info-card">
-          <p>Drivers</p>
-          <h3>{stats.drivers}</h3>
+        <div className="info-card users-info-card" data-animate data-delay="180">
+          <p>Owners</p>
+          <h3>{stats.owners}</h3>
           <span className="muted">Verified partners</span>
         </div>
-        <div className="info-card users-info-card">
+        <div className="info-card users-info-card" data-animate data-delay="270">
           <p>Customers</p>
           <h3>{stats.riders}</h3>
           <span className="muted">Customer accounts</span>
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel" data-animate>
         <div className="panel-header">
           <div>
             <h3>User directory</h3>
@@ -145,6 +189,8 @@ function UsersPage() {
           <p className="muted">Loading users...</p>
         ) : users.length === 0 ? (
           <p className="muted">No users available yet.</p>
+        ) : visibleUsers.length === 0 ? (
+          <p className="muted">No users match your search.</p>
         ) : (
           <div className="table users-table">
             <div className="table-row table-head">
@@ -154,7 +200,7 @@ function UsersPage() {
               <span>Joined</span>
               <span>Role</span>
             </div>
-            {users.map((user) => (
+            {visibleUsers.map((user) => (
               <div
                 key={user._id}
                 className="table-row clickable-row"
@@ -175,7 +221,7 @@ function UsersPage() {
                     disabled={updatingId === user._id}
                   >
                     <option value="user">User</option>
-                    <option value="driver">Driver</option>
+                    <option value="owner">Owner</option>
                     <option value="admin">Admin</option>
                   </select>
                   <button
@@ -297,6 +343,15 @@ function UsersPage() {
               </label>
             </div>
             <div className="modal-actions">
+              <button
+                className="ghost"
+                type="button"
+                onClick={handleDeleteUser}
+                style={{ color: '#ef4444', marginRight: 'auto' }}
+                disabled={!!updatingId}
+              >
+                Delete
+              </button>
               <button className="ghost" type="button" onClick={cancelEdit}>
                 Cancel
               </button>

@@ -3,16 +3,17 @@ const Driver = require("../models/Driver");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const createVehicle = asyncHandler(async (req, res) => {
-  const { driverId, make, model, plateNumber, color, seats, imageUrl } = req.body;
-  if (!driverId || !make || !model || !plateNumber || !color) {
+  const { driverId, ownerId, make, model, plateNumber, color, seats, imageUrl } = req.body;
+  const resolvedOwnerId = ownerId || driverId;
+  if (!resolvedOwnerId || !make || !model || !plateNumber || !color) {
     return res.status(400).json({ message: "Missing required fields" });
   }
-  const driver = await Driver.findById(driverId);
+  const driver = await Driver.findById(resolvedOwnerId);
   if (!driver) {
-    return res.status(404).json({ message: "Driver not found" });
+    return res.status(404).json({ message: "Owner not found" });
   }
   const vehicle = await Vehicle.create({
-    driver: driverId,
+    driver: resolvedOwnerId,
     make,
     model,
     plateNumber,
@@ -43,7 +44,12 @@ const getVehicle = asyncHandler(async (req, res) => {
 });
 
 const updateVehicle = asyncHandler(async (req, res) => {
-  const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, {
+  const updates = { ...req.body };
+  if (updates.ownerId && !updates.driver) {
+    updates.driver = updates.ownerId;
+    delete updates.ownerId;
+  }
+  const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, updates, {
     new: true,
     runValidators: true
   });

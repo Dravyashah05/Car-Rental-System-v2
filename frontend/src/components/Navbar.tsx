@@ -1,19 +1,15 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { HiSun, HiMoon } from 'react-icons/hi2';
 import '../styles/Navbar.css';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const { currentUser } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const savedTheme = window.localStorage.getItem('theme');
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      return savedTheme;
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
 
   const isActive = (path: string) => location.pathname === path;
   const roleLabel = currentUser?.role ? currentUser.role.toUpperCase() : 'USER';
@@ -21,11 +17,6 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    window.localStorage.setItem('theme', theme);
-  }, [theme]);
 
   return (
     <nav className="navbar">
@@ -69,9 +60,10 @@ const Navbar: React.FC = () => {
             <button
               type="button"
               className="theme-toggle"
-              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
-              {theme === 'dark' ? 'Light mode' : 'Night mode'}
+              {theme === 'dark' ? <HiSun size={20} /> : <HiMoon size={20} />}
             </button>
             {currentUser ? (
               <>
@@ -105,6 +97,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-
-
-

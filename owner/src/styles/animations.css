@@ -1,0 +1,26 @@
+body.reveal-ready [data-animate] {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  filter: blur(4px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.55s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: transform, opacity, filter;
+}
+
+body.reveal-ready [data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.reveal-ready [data-animate] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

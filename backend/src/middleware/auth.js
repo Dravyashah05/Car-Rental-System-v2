@@ -24,7 +24,21 @@ const authenticate = async (req, res, next) => {
 
 const authorize = (...roles) => (req, res, next) => {
   const role = req.user?.role || "user";
-  if (!req.user || !roles.includes(role)) {
+  const allowed = new Set();
+
+  roles.forEach((allowedRole) => {
+    if (allowedRole === "owner") {
+      allowed.add("owner");
+      allowed.add("driver");
+    } else if (allowedRole === "driver") {
+      allowed.add("driver");
+      allowed.add("owner");
+    } else {
+      allowed.add(allowedRole);
+    }
+  });
+
+  if (!req.user || !allowed.has(role)) {
     return res.status(403).json({ message: "Forbidden" });
   }
   next();

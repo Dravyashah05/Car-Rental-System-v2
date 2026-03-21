@@ -1,6 +1,16 @@
-﻿import { useEffect, useMemo, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { apiFetch } from '../services/api'
+import { IconContext  } from 'react-icons';
+import { FiAlignJustify } from 'react-icons/fi';
+import { LuLayoutDashboard } from "react-icons/lu";
+import { FaWpforms } from "react-icons/fa";
+import { MdPayments } from "react-icons/md";
+import { FaUserCog } from "react-icons/fa";
+import { FaCarAlt } from "react-icons/fa";
+import { MdPerson } from "react-icons/md";
+import { FaClipboardCheck } from "react-icons/fa";
+import { FiSettings } from "react-icons/fi";
 
 const pageMeta: Record<
   string,
@@ -14,8 +24,12 @@ const pageMeta: Record<
     title: 'Bookings Center',
     subtitle: 'Review, assign, and manage car rental bookings.',
   },
-  '/drivers': {
-    title: 'Driver Operations',
+  '/owner-requests': {
+    title: 'Owner Requests',
+    subtitle: 'Confirm bookings and send owner requests.',
+  },
+  '/owners': {
+    title: 'Owner Operations',
     subtitle: 'Track availability, compliance, and performance.',
   },
   '/add-car': {
@@ -34,12 +48,56 @@ const pageMeta: Record<
     title: 'Admin Profile',
     subtitle: 'Manage your access, preferences, and security.',
   },
+  '/settings': {
+    title: 'Admin Settings',
+    subtitle: 'Fine-tune appearance, preferences, and account controls.',
+  },
 }
 
 type CurrentUser = {
   name?: string
   email?: string
   role?: string
+}
+
+type SearchUser = {
+  _id: string
+  name?: string
+  email?: string
+  phone?: string
+  role?: string
+}
+
+type SearchOwner = {
+  _id: string
+  licenseNumber?: string
+  isActive?: boolean
+  user?: {
+    name?: string
+    email?: string
+    phone?: string
+  }
+}
+
+type SearchRide = {
+  _id: string
+  rider?: {
+    name?: string
+    email?: string
+  }
+  pickup?: {
+    address?: string
+  }
+  dropoff?: {
+    address?: string
+  }
+  status?: string
+}
+
+type SearchData = {
+  users: SearchUser[]
+  owners: SearchOwner[]
+  rides: SearchRide[]
 }
 
 const getInitials = (name?: string, email?: string) => {
@@ -56,10 +114,25 @@ const getInitials = (name?: string, email?: string) => {
 
 function Layout({ onLogout }: { onLogout: () => void }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const today = useMemo(() => new Date(), [])
   const meta = pageMeta[location.pathname] ?? pageMeta['/dashboard']
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.matchMedia('(min-width: 901px)').matches
+  })
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+  const [searchText, setSearchText] = useState('')
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isSearchLoading, setIsSearchLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  const [searchData, setSearchData] = useState<SearchData>({
+    users: [],
+    owners: [],
+    rides: [],
+  })
+  const [hasLoadedSearchData, setHasLoadedSearchData] = useState(false)
+  const searchContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (!isSidebarOpen) return
@@ -97,13 +170,128 @@ function Layout({ onLogout }: { onLogout: () => void }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isSearchOpen) return
+    const handleClick = (event: MouseEvent) => {
+      if (!searchContainerRef.current) return
+      if (!searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false)
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false)
+      }
+    }
+    window.addEventListener('mousedown', handleClick)
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('mousedown', handleClick)
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isSearchOpen])
+
+  useEffect(() => {
+    setIsSearchOpen(false)
+  }, [location.pathname])
+
+  const loadSearchData = async () => {
+    setIsSearchLoading(true)
+    setSearchError('')
+    try {
+      const [users, owners, rides] = await Promise.all([
+        apiFetch<SearchUser[]>('/api/users'),
+        apiFetch<SearchOwner[]>('/api/owners'),
+        apiFetch<SearchRide[]>('/api/rides'),
+      ])
+      setSearchData({ users, owners, rides })
+      setHasLoadedSearchData(true)
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : 'Unable to load search data')
+    } finally {
+      setIsSearchLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const trimmed = searchText.trim()
+    if (!trimmed) {
+      setIsSearchOpen(false)
+      return
+    }
+    setIsSearchOpen(true)
+    if (!hasLoadedSearchData && !isSearchLoading) {
+      loadSearchData()
+    }
+  }, [searchText, hasLoadedSearchData, isSearchLoading])
+
+  const normalizedQuery = searchText.trim().toLowerCase()
+
+  const userMatches = useMemo(() => {
+    if (!normalizedQuery) return []
+    return searchData.users.filter((user) => {
+      const haystack = [user.name, user.email, user.phone, user.role, user._id]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(normalizedQuery)
+    })
+  }, [searchData.users, normalizedQuery])
+
+  const ownerMatches = useMemo(() => {
+    if (!normalizedQuery) return []
+    return searchData.owners.filter((owner) => {
+      const haystack = [
+        owner.user?.name,
+        owner.user?.email,
+        owner.user?.phone,
+        owner.licenseNumber,
+        owner._id,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(normalizedQuery)
+    })
+  }, [searchData.owners, normalizedQuery])
+
+  const bookingMatches = useMemo(() => {
+    if (!normalizedQuery) return []
+    return searchData.rides.filter((ride) => {
+      const rider = `${ride.rider?.name ?? ''} ${ride.rider?.email ?? ''}`
+      const route = `${ride.pickup?.address ?? ''} ${ride.dropoff?.address ?? ''}`
+      const haystack = [ride._id, ride.status, rider, route]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(normalizedQuery)
+    })
+  }, [searchData.rides, normalizedQuery])
+
+  const buildSearchTarget = (path: string) => {
+    const params = new URLSearchParams()
+    const trimmed = searchText.trim()
+    if (trimmed) {
+      params.set('q', trimmed)
+    }
+    return {
+      pathname: path,
+      search: params.toString() ? `?${params.toString()}` : '',
+    }
+  }
+
   const displayName = currentUser?.name || currentUser?.email || 'Admin user'
   const displayRole = currentUser?.role ? currentUser.role[0].toUpperCase() + currentUser.role.slice(1) : 'Administrator'
   const userInitials = getInitials(currentUser?.name, currentUser?.email)
+  const handleNavClick = () => {
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches) {
+      setIsSidebarOpen(false)
+    }
+  }
 
   return (
-    <div className="app">
-      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+    <div className={`app ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+      <aside id="admin-sidebar" className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-top">
           <div className="brand">
             <div className="brand-mark">CR</div>
@@ -126,58 +314,74 @@ function Layout({ onLogout }: { onLogout: () => void }) {
           <NavLink
             to="/dashboard"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">D</span>
+            <span className="nav-icon"><LuLayoutDashboard /></span>
             <span>Dashboard</span>
           </NavLink>
           <NavLink
             to="/bookings"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">B</span>
+            <span className="nav-icon"><FaWpforms /></span>
             <span>Bookings</span>
           </NavLink>
           <NavLink
-            to="/drivers"
+            to="/owner-requests"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">R</span>
-            <span>Drivers</span>
+            <span className="nav-icon"><FaClipboardCheck /></span>
+            <span>Owner Requests</span>
+          </NavLink>
+          <NavLink
+            to="/owners"
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            <span className="nav-icon"><img src="https://img.icons8.com/?size=100&id=63392&format=png&color=64748B" alt="" style={{ width: "20px" }}/></span>
+            <span>Owners</span>
           </NavLink>
           <NavLink
             to="/add-car"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">A</span>
+            <span className="nav-icon"><FaCarAlt /></span>
             <span>Add Car</span>
           </NavLink>
           <NavLink
             to="/payments"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">P</span>
+            <span className="nav-icon"><MdPayments /></span>
             <span>Payments</span>
           </NavLink>
           <NavLink
             to="/users"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">U</span>
+            <span className="nav-icon"><MdPerson /></span>
             <span>Users</span>
           </NavLink>
           <NavLink
             to="/profile"
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={handleNavClick}
           >
-            <span className="nav-icon">S</span>
+            <span className="nav-icon"><FaUserCog /></span>
             <span>Profile</span>
+          </NavLink>
+          <NavLink
+            to="/settings"
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            <span className="nav-icon"><FiSettings /></span>
+            <span>Settings</span>
           </NavLink>
         </nav>
         <div className="nav-footer">
@@ -204,12 +408,16 @@ function Layout({ onLogout }: { onLogout: () => void }) {
             <button
               className="sidebar-toggle"
               type="button"
-              aria-label="Open sidebar"
-              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Toggle sidebar"
+              aria-controls="admin-sidebar"
+              aria-expanded={isSidebarOpen}
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
             >
-              <span />
-              <span />
-              <span />
+              <IconContext.Provider value={{ color: "currentColor", size: "2em",className: "global-class-name" }}>
+                <div>
+                 <FiAlignJustify />
+                </div>
+              </IconContext.Provider>
             </button>
             <div className="topbar-heading">
               <h1>{meta.title}</h1>
@@ -217,8 +425,109 @@ function Layout({ onLogout }: { onLogout: () => void }) {
             </div>
           </div>
           <div className="topbar-actions">
-            <div className="search">
-              <input placeholder="Customer, booking, or vehicle" />
+            <div className="search" ref={searchContainerRef}>
+              <input
+                placeholder="Search users, bookings, or owners"
+                value={searchText}
+                onChange={(event) => setSearchText(event.target.value)}
+                onFocus={() => {
+                  if (searchText.trim()) {
+                    setIsSearchOpen(true)
+                  }
+                }}
+              />
+              {isSearchOpen ? (
+                <div className="search-results">
+                  {isSearchLoading ? (
+                    <div className="search-empty">Loading search data...</div>
+                  ) : searchError ? (
+                    <div className="search-empty">{searchError}</div>
+                  ) : (
+                    <>
+                      <div className="search-group">
+                        <div className="search-group-title">Users</div>
+                        {userMatches.length === 0 ? (
+                          <div className="search-empty">No users found.</div>
+                        ) : (
+                          userMatches.map((user) => {
+                            const title = user.name ?? user.email ?? `User ${user._id.slice(-6).toUpperCase()}`
+                            const subtitle = user.email ?? user.phone ?? 'No contact'
+                            return (
+                              <button
+                                key={user._id}
+                                type="button"
+                                className="search-item"
+                                onClick={() => {
+                                  navigate(buildSearchTarget('/users'))
+                                  setIsSearchOpen(false)
+                                }}
+                              >
+                                <span className="search-item-title">{title}</span>
+                                <span className="search-item-subtitle">{subtitle}</span>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                      <div className="search-group">
+                        <div className="search-group-title">Bookings</div>
+                        {bookingMatches.length === 0 ? (
+                          <div className="search-empty">No bookings found.</div>
+                        ) : (
+                          bookingMatches.map((ride) => {
+                            const riderName = ride.rider?.name ?? ride.rider?.email ?? 'Unknown customer'
+                            const pickup = ride.pickup?.address ?? 'Unknown pickup'
+                            const dropoff = ride.dropoff?.address ?? 'Unknown dropoff'
+                            return (
+                              <button
+                                key={ride._id}
+                                type="button"
+                                className="search-item"
+                                onClick={() => {
+                                  navigate(buildSearchTarget('/bookings'))
+                                  setIsSearchOpen(false)
+                                }}
+                              >
+                                <span className="search-item-title">Booking {ride._id.slice(-8).toUpperCase()}</span>
+                                <span className="search-item-subtitle">
+                                  {riderName} | {pickup} {'->'} {dropoff}
+                                </span>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                      <div className="search-group">
+                        <div className="search-group-title">Owners</div>
+                        {ownerMatches.length === 0 ? (
+                          <div className="search-empty">No owners found.</div>
+                        ) : (
+                          ownerMatches.map((owner) => {
+                            const title =
+                              owner.user?.name ?? owner.user?.email ?? `Owner ${owner._id.slice(-6).toUpperCase()}`
+                            const subtitle =
+                              owner.user?.email ?? owner.user?.phone ?? owner.licenseNumber ?? 'No contact'
+                            return (
+                              <button
+                                key={owner._id}
+                                type="button"
+                                className="search-item"
+                                onClick={() => {
+                                  navigate(buildSearchTarget('/owners'))
+                                  setIsSearchOpen(false)
+                                }}
+                              >
+                                <span className="search-item-title">{title}</span>
+                                <span className="search-item-subtitle">{subtitle}</span>
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : null}
             </div>
             <div className="topbar-date">
               {today.toLocaleDateString('en-US', {
@@ -241,5 +550,9 @@ function Layout({ onLogout }: { onLogout: () => void }) {
 }
 
 export default Layout
+
+
+
+
 
 

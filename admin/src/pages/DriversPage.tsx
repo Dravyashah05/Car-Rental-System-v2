@@ -1,4 +1,5 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 
 type Driver = {
@@ -28,13 +29,13 @@ const formatDate = (value?: string) => {
 }
 
 const getInitials = (name?: string, email?: string) => {
-  const source = name?.trim() || email?.trim() || 'Driver'
+  const source = name?.trim() || email?.trim() || 'Owner'
   const words = source
     .replace(/[@._-]/g, ' ')
     .split(' ')
     .filter(Boolean)
 
-  if (words.length === 0) return 'DR'
+  if (words.length === 0) return 'OW'
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
   return `${words[0][0]}${words[1][0]}`.toUpperCase()
 }
@@ -62,7 +63,8 @@ const readAvatarFile = (
   reader.readAsDataURL(file)
 }
 
-function DriversPage() {
+function OwnersPage() {
+  const location = useLocation()
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -130,12 +132,12 @@ function DriversPage() {
   const loadDrivers = async () => {
     setIsLoading(true)
     try {
-      const data = await apiFetch<Driver[]>('/api/drivers')
+      const data = await apiFetch<Driver[]>('/api/owners')
       setDrivers(data)
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to load drivers',
+        message: err instanceof Error ? err.message : 'Failed to load owners',
       })
     } finally {
       setIsLoading(false)
@@ -145,6 +147,30 @@ function DriversPage() {
   useEffect(() => {
     loadDrivers()
   }, [])
+
+  const searchQuery = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    return (params.get('q') ?? '').trim().toLowerCase()
+  }, [location.search])
+
+  const filteredDrivers = useMemo(() => {
+    if (!searchQuery) return drivers
+    return drivers.filter((driver) => {
+      const haystack = [
+        driver.user?.name,
+        driver.user?.email,
+        driver.user?.phone,
+        driver.licenseNumber,
+        driver._id,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(searchQuery)
+    })
+  }, [drivers, searchQuery])
+
+  const visibleDrivers = searchQuery ? filteredDrivers : drivers
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -157,7 +183,7 @@ function DriversPage() {
 
     setIsSubmitting(true)
     try {
-      await apiFetch<Driver>('/api/drivers/register', {
+      await apiFetch<Driver>('/api/owners/register', {
         method: 'POST',
         body: JSON.stringify({
           name,
@@ -171,14 +197,14 @@ function DriversPage() {
           isActive,
         }),
       })
-      setStatus({ type: 'success', message: 'Driver added successfully.' })
+      setStatus({ type: 'success', message: 'Owner added successfully.' })
       resetAddForm()
       setIsAddDriverOpen(false)
       await loadDrivers()
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to add driver',
+        message: err instanceof Error ? err.message : 'Failed to add owner',
       })
     } finally {
       setIsSubmitting(false)
@@ -191,7 +217,7 @@ function DriversPage() {
 
     const userId = editingDriver.user?._id
     if (!userId) {
-      setStatus({ type: 'error', message: 'Driver account is missing linked user record.' })
+      setStatus({ type: 'error', message: 'Owner account is missing linked user record.' })
       return
     }
 
@@ -215,7 +241,7 @@ function DriversPage() {
             gender: editGender || null,
           }),
         }),
-        apiFetch(`/api/drivers/${editingDriver._id}`, {
+        apiFetch(`/api/owners/${editingDriver._id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             licenseNumber: editLicenseNumber,
@@ -224,13 +250,36 @@ function DriversPage() {
         }),
       ])
 
-      setStatus({ type: 'success', message: 'Driver information updated successfully.' })
+      setStatus({ type: 'success', message: 'Owner information updated successfully.' })
       closeEditModal()
       await loadDrivers()
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to update driver info',
+        message: err instanceof Error ? err.message : 'Failed to update owner info',
+      })
+    } finally {
+      setIsEditSubmitting(false)
+    }
+  }
+
+  const handleDeleteDriver = async () => {
+    if (!editingDriver) return
+    if (!window.confirm('Are you sure you want to delete this owner?')) return
+    setStatus(null)
+    setIsEditSubmitting(true)
+    try {
+      await apiFetch(`/api/owners/${editingDriver._id}`, {
+        method: 'DELETE',
+      })
+
+      setStatus({ type: 'success', message: 'Owner deleted successfully.' })
+      closeEditModal()
+      await loadDrivers()
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to delete owner',
       })
     } finally {
       setIsEditSubmitting(false)
@@ -239,10 +288,10 @@ function DriversPage() {
 
   return (
     <div className="page">
-      <section className="panel">
+      <section className="panel" data-animate>
         <div className="panel-header">
           <div>
-            <h3>Driver roster</h3>
+            <h3>Owner roster</h3>
             <p>Availability, profile details, and compliance</p>
           </div>
           <div className="row">
@@ -254,7 +303,7 @@ function DriversPage() {
                 setIsAddDriverOpen(true)
               }}
             >
-              Add driver
+              Add owner
             </button>
             <button className="ghost" type="button" onClick={loadDrivers}>
               {isLoading ? 'Refreshing...' : 'Refresh'}
@@ -267,9 +316,12 @@ function DriversPage() {
           </p>
         ) : null}
         <div className="stack">
-          {drivers.length === 0 && !isLoading ? <p className="muted">No drivers yet.</p> : null}
-          {drivers.map((driver) => {
-            const label = driver.user?.name || driver.user?.email || `Driver ${driver._id.slice(-6)}`
+          {drivers.length === 0 && !isLoading ? <p className="muted">No owners yet.</p> : null}
+          {drivers.length > 0 && visibleDrivers.length === 0 ? (
+            <p className="muted">No owners match your search.</p>
+          ) : null}
+          {visibleDrivers.map((driver) => {
+            const label = driver.user?.name || driver.user?.email || `Owner ${(driver._id || '').slice(-6)}`
             const driverInitials = getInitials(driver.user?.name, driver.user?.email)
             return (
               <div
@@ -327,15 +379,15 @@ function DriversPage() {
           <div className="modal add-driver-modal" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h3>Add new driver</h3>
-                <p className="muted">Create driver profile, contact, and account credentials.</p>
+                <h3>Add new owner</h3>
+                <p className="muted">Create owner profile, contact, and account credentials.</p>
               </div>
-              <div className="tag">Driver intake</div>
+              <div className="tag">Owner intake</div>
             </div>
 
             <div className="form-banner">
               <div>
-                <h4>Driver profile</h4>
+                <h4>Owner profile</h4>
                 <p className="muted">Upload avatar and complete key information before onboarding.</p>
               </div>
               <span className={`pill ${isActive ? 'success' : 'warning'}`}>
@@ -360,7 +412,7 @@ function DriversPage() {
                         <img
                           className="driver-avatar driver-avatar-large"
                           src={avatar}
-                          alt="Driver avatar preview"
+                          alt="Owner avatar preview"
                         />
                       ) : (
                         <div className="driver-avatar driver-avatar-large driver-avatar-fallback">
@@ -368,7 +420,7 @@ function DriversPage() {
                         </div>
                       )}
                       <div>
-                        <p className="row-title">Upload driver avatar</p>
+                        <p className="row-title">Upload owner avatar</p>
                         <p className="muted">PNG/JPG, max 2MB</p>
                       </div>
                     </div>
@@ -390,7 +442,7 @@ function DriversPage() {
                 <span>Email</span>
                 <input
                   type="email"
-                  placeholder="driver@cityride.com"
+                  placeholder="owner@carrental.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
@@ -465,7 +517,7 @@ function DriversPage() {
                   Cancel
                 </button>
                 <button className="primary" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : 'Add driver'}
+                  {isSubmitting ? 'Saving...' : 'Add owner'}
                 </button>
               </div>
             </form>
@@ -478,21 +530,21 @@ function DriversPage() {
           <div className="modal add-driver-modal" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h3>Driver details</h3>
+                <h3>Owner details</h3>
                 <p className="muted">Complete profile and operational information.</p>
               </div>
-              <span className="tag">Driver ID {selectedDriver._id.slice(-6).toUpperCase()}</span>
+              <span className="tag">Owner ID {(selectedDriver._id || '').slice(-6).toUpperCase()}</span>
             </div>
             <div className="detail-hero">
               {selectedDriver.user?.avatar ? (
-                <img className="detail-hero-media" src={selectedDriver.user.avatar} alt={selectedDriver.user?.name ?? 'Driver'} />
+                <img className="detail-hero-media" src={selectedDriver.user.avatar} alt={selectedDriver.user?.name ?? 'Owner'} />
               ) : (
                 <div className="detail-hero-media">
                   {getInitials(selectedDriver.user?.name, selectedDriver.user?.email)}
                 </div>
               )}
               <div>
-                <h4>{selectedDriver.user?.name ?? 'Unknown driver'}</h4>
+                <h4>{selectedDriver.user?.name ?? 'Unknown owner'}</h4>
                 <p className="muted">{selectedDriver.user?.email ?? 'No email'}</p>
               </div>
             </div>
@@ -555,13 +607,26 @@ function DriversPage() {
 
       {editingDriver ? (
         <div className="modal-backdrop" onClick={closeEditModal}>
-          <div className="modal add-driver-modal" onClick={(event) => event.stopPropagation()}>
+          <div className="modal add-driver-modal owner-edit-modal" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h3>Edit driver info</h3>
+                <h3>Edit owner info</h3>
                 <p className="muted">Update profile, contact, and status information.</p>
               </div>
-              <span className="tag">Driver ID {editingDriver._id.slice(-6).toUpperCase()}</span>
+              <span className="tag">Owner ID {(editingDriver._id || '').slice(-6).toUpperCase()}</span>
+            </div>
+
+            <div className="form-banner owner-edit-banner">
+              <div>
+                <h4>Owner snapshot</h4>
+                <p className="muted">Confirm identity, compliance, and activity signals.</p>
+              </div>
+              <div className="owner-banner-meta">
+                <span className={`pill ${editIsActive ? 'success' : 'warning'}`}>
+                  {editIsActive ? 'Active' : 'Inactive'}
+                </span>
+                <span className="badge">Rating {editingDriver.rating ?? 5}/5</span>
+              </div>
             </div>
 
             <form className="modal-body form-grid" onSubmit={handleEditSubmit}>
@@ -585,7 +650,7 @@ function DriversPage() {
                         <img
                           className="driver-avatar driver-avatar-large"
                           src={editAvatar}
-                          alt="Driver avatar preview"
+                          alt="Owner avatar preview"
                         />
                       ) : (
                         <div className="driver-avatar driver-avatar-large driver-avatar-fallback">
@@ -593,7 +658,7 @@ function DriversPage() {
                         </div>
                       )}
                       <div>
-                        <p className="row-title">Update driver avatar</p>
+                        <p className="row-title">Update owner avatar</p>
                         <p className="muted">PNG/JPG, max 2MB</p>
                       </div>
                     </div>
@@ -658,6 +723,14 @@ function DriversPage() {
               </label>
 
               <div className="modal-actions">
+                <button
+                  className="ghost danger-btn"
+                  type="button"
+                  onClick={handleDeleteDriver}
+                  disabled={isEditSubmitting}
+                >
+                  Delete owner
+                </button>
                 <button className="ghost" type="button" onClick={closeEditModal}>
                   Cancel
                 </button>
@@ -673,4 +746,4 @@ function DriversPage() {
   )
 }
 
-export default DriversPage
+export default OwnersPage

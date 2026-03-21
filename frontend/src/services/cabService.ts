@@ -67,38 +67,43 @@ export const cabService = {
       fare: bookingRequest.totalPrice,
     };
 
-    const ride = await apiClient.post<RideResponse>('/api/rides', payload, getAuthToken());
+    try {
+      const ride = await apiClient.post<RideResponse>('/api/rides', payload, getAuthToken());
 
-    const rideStatus = (ride.status || 'requested').toLowerCase();
-    const statusMap: Record<string, Booking['status']> = {
-      requested: 'pending',
-      assigned: 'confirmed',
-      accepted: 'confirmed',
-      enroute: 'confirmed',
-      completed: 'completed',
-      cancelled: 'cancelled',
-    };
+      const rideStatus = (ride.status || 'requested').toLowerCase();
+      const statusMap: Record<string, Booking['status']> = {
+        requested: 'pending',
+        assigned: 'confirmed',
+        accepted: 'confirmed',
+        enroute: 'confirmed',
+        completed: 'completed',
+        cancelled: 'cancelled',
+      };
 
-    const riderId =
-      typeof ride.rider === 'string' ? ride.rider : ride.rider?._id ?? '';
+      const riderId =
+        typeof ride.rider === 'string' ? ride.rider : ride.rider?._id ?? '';
 
-    const cabId =
-      typeof ride.cab === 'string' ? ride.cab : ride.cab?._id ?? bookingRequest.cabId;
+      const cabId =
+        typeof ride.cab === 'string' ? ride.cab : ride.cab?._id ?? bookingRequest.cabId;
 
-    return {
-      id: ride._id,
-      cabId,
-      userId: riderId,
-      pickupLocation: ride.pickup?.address ?? bookingRequest.pickupLocation,
-      dropoffLocation: ride.dropoff?.address ?? bookingRequest.dropoffLocation,
-      pickupDate: bookingRequest.pickupDate,
-      pickupTime: bookingRequest.pickupTime,
-      estimatedDistance: bookingRequest.estimatedDistance,
-      estimatedDuration: bookingRequest.estimatedDuration,
-      totalPrice: ride.fare ?? bookingRequest.totalPrice ?? 0,
-      status: statusMap[rideStatus] ?? 'pending',
-      bookingDate: ride.createdAt ?? new Date().toISOString(),
-    };
+      return {
+        id: ride._id,
+        cabId,
+        userId: riderId,
+        pickupLocation: ride.pickup?.address ?? bookingRequest.pickupLocation,
+        dropoffLocation: ride.dropoff?.address ?? bookingRequest.dropoffLocation,
+        pickupDate: bookingRequest.pickupDate,
+        pickupTime: bookingRequest.pickupTime,
+        estimatedDistance: bookingRequest.estimatedDistance,
+        estimatedDuration: bookingRequest.estimatedDuration,
+        totalPrice: ride.fare ?? bookingRequest.totalPrice ?? 0,
+        status: statusMap[rideStatus] ?? 'pending',
+        bookingDate: ride.createdAt ?? new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      throw error;
+    }
   },
 
   getBookings: async (userId?: string): Promise<Booking[]> => {
@@ -141,8 +146,8 @@ export const cabService = {
         userId: riderId,
         pickupLocation: ride.pickup?.address ?? '',
         dropoffLocation: ride.dropoff?.address ?? '',
-        pickupDate: '',
-        pickupTime: '',
+        pickupDate: ride.createdAt || new Date().toISOString(),
+        pickupTime: ride.createdAt ? new Date(ride.createdAt).toLocaleTimeString() : '',
         estimatedDistance: ride.distanceKm ?? 0,
         estimatedDuration: 0,
         totalPrice: ride.fare ?? 0,

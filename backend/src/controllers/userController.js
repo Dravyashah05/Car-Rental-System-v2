@@ -1,9 +1,15 @@
 const User = require("../models/User");
 
+const normalizeRole = (role) => (role === "driver" ? "owner" : role);
+
 const listUsers = async (req, res, next) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
-    res.json(users);
+    const normalized = users.map((user) => ({
+      ...user.toObject(),
+      role: normalizeRole(user.role)
+    }));
+    res.json(normalized);
   } catch (err) {
     next(err);
   }
@@ -31,7 +37,10 @@ const updateUser = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    res.json({
+      ...user.toObject(),
+      role: normalizeRole(user.role)
+    });
   } catch (err) {
     next(err);
   }
@@ -40,15 +49,17 @@ const updateUser = async (req, res, next) => {
 const updateUserRole = async (req, res, next) => {
   try {
     const { role } = req.body;
-    const allowedRoles = ["user", "driver", "admin"];
+    const allowedRoles = ["user", "owner", "admin", "driver"];
 
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
+    const resolvedRole = role === "driver" ? "owner" : role;
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { role },
+      { role: resolvedRole },
       { new: true }
     ).select("-password");
 
@@ -56,10 +67,25 @@ const updateUserRole = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    res.json({
+      ...user.toObject(),
+      role: normalizeRole(user.role)
+    });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { listUsers, updateUser, updateUserRole };
+const deleteUser = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { listUsers, updateUser, updateUserRole, deleteUser };

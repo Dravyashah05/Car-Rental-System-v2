@@ -1,73 +1,67 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  FaBolt,
-  FaRupeeSign,
-  FaStar,
   FaShieldAlt,
-  FaCar,
-  FaUserTie,
-  FaTags,
-  FaHeadset,
-  FaLock,
-  FaMapMarkedAlt,
-  FaCalendarCheck,
-  FaRoute,
-  FaCalculator,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaRegMoneyBillAlt,
+  FaRegComments,
+  FaWallet,
+  FaPiggyBank,
   FaClock,
+  FaCheckCircle
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import SearchForm from '../components/SearchForm';
 import '../styles/HomePage.css';
 
 const stats = [
-  { label: 'Happy Customers', value: '25K+' },
-  { label: 'Daily Rentals', value: '4.8K+' },
-  { label: 'Active Cars', value: '500+' },
-  { label: 'Average Rating', value: '4.9/5' },
+  { label: 'Happy Customers', value: '150K+' },
+  { label: 'Trusted Partners', value: '450+' },
+  { label: 'Premium Fleet', value: '1,200+' },
+  { label: 'Global Locations', value: '85+' },
 ];
 
-const howItWorks = [
+const features = [
   {
-    title: 'Set Pickup & Drop',
-    description: 'Choose your starting point and destination in seconds.',
-    icon: FaMapMarkedAlt,
+    title: 'Transparent Pricing',
+    description: 'No hidden fees. What you see is exactly what you pay at the counter.',
+    icon: FaRegMoneyBillAlt,
   },
   {
-    title: 'Select Date & Car',
-    description: 'Pick your schedule and find the car that matches your budget.',
-    icon: FaCalendarCheck,
+    title: 'Fully Insured Vehicles',
+    description: 'Every rental comes with comprehensive insurance coverage for your peace of mind.',
+    icon: FaShieldAlt,
   },
   {
-    title: 'Confirm & Rent',
-    description: 'Book instantly and track your rental with reliable updates.',
-    icon: FaRoute,
+    title: '24/7 Roadside Assistance',
+    description: 'We are always just a call away, whenever and wherever you need us.',
+    icon: FaRegComments,
   },
 ];
 
-const testimonials = [
+const steps = [
   {
-    name: 'Priya Sharma',
-    role: 'Daily Commuter',
-    quote: 'The booking process is super fast and drivers are always on time.',
+    title: 'Choose Location',
+    description: 'Select your preferred pick-up and drop-off points from our extensive network.',
+    icon: FaMapMarkerAlt,
   },
   {
-    name: 'Aman Mehta',
-    role: 'Business Traveler',
-    quote: 'Transparent pricing and clean cars every time. Exactly what I needed.',
+    title: 'Select Dates',
+    description: 'Enter your rental period and find the perfect vehicle for your schedule.',
+    icon: FaCalendarAlt,
   },
   {
-    name: 'Riya Verma',
-    role: 'Student',
-    quote: 'Safe rentals at student-friendly prices. Support team is genuinely helpful.',
+    title: 'Book Your Car',
+    description: 'Confirm your reservation and enjoy a seamless key-handover experience.',
+    icon: FaCheckCircle,
   },
 ];
 
 const HomePage: React.FC = () => {
   const [estimator, setEstimator] = useState({
-    distanceKm: 12,
-    durationMinutes: 35,
-    farePerKm: 14,
-    farePerHour: 240,
+    distanceKm: 20,
+    durationDays: 3,
+    categoryMultiplier: 1.5,
   });
 
   const handleSearch = () => {
@@ -75,203 +69,171 @@ const HomePage: React.FC = () => {
   };
 
   const estimatedFare = useMemo(() => {
-    const distanceCost = estimator.distanceKm * estimator.farePerKm;
-    const timeCost = (estimator.durationMinutes / 60) * estimator.farePerHour;
-    return Math.round(distanceCost + timeCost);
+    const baseRate = 800; // Base rate per day
+    const distanceCost = estimator.distanceKm * 15;
+    const daysCost = estimator.durationDays * baseRate * estimator.categoryMultiplier;
+    return Math.round(distanceCost + daysCost);
   }, [estimator]);
 
-  const today = new Date();
-  const currentHour = today.getHours();
-  const etaLabel = currentHour >= 8 && currentHour <= 11 ? 'Busy traffic window' : 'Smooth traffic window';
-
   return (
-    <div className="home-page">
-      <section className="hero-section">
-        <div className="hero-content section-container">
-          <span className="hero-chip">Smart City Mobility</span>
-          <h1>Book smart. Rent right. Reach faster.</h1>
-          <p>Plan car rentals in seconds with transparent fares and verified drivers.</p>
-
-          <div className="hero-actions">
-            <Link to="/cabs" className="hero-btn primary">Explore Cars</Link>
-            <Link to="/bookings" className="hero-btn ghost">Track Bookings</Link>
+    <div className="corporate-home">
+      {/* Hero Section */}
+      <section className="corporate-hero">
+        <div className="section-container hero-grid">
+          <div className="hero-text" data-animate>
+            <span className="hero-badge">The Standard in Corporate Rentals</span>
+            <h1 className="hero-title">Experience Premium Mobility.</h1>
+            <p className="hero-subtitle">
+              Whether for a business trip or a weekend getaway, discover our extensive fleet of meticulously maintained vehicles designed for your comfort and safety.
+            </p>
+            <div className="hero-buttons">
+              <Link to="/cabs" className="btn-corporate primary">Browse Fleet</Link>
+              <Link to="/bookings" className="btn-corporate secondary">Manage Reservation</Link>
+            </div>
           </div>
-
-          <div className="hero-features">
-            <div className="feature">
-              <FaBolt className="feature-icon" />
-              <span>Fast Booking</span>
-            </div>
-            <div className="feature">
-              <FaRupeeSign className="feature-icon" />
-              <span>Best Prices</span>
-            </div>
-            <div className="feature">
-              <FaStar className="feature-icon" />
-              <span>Professional Drivers</span>
-            </div>
-            <div className="feature">
-              <FaShieldAlt className="feature-icon" />
-              <span>Safe & Secure</span>
-            </div>
+          <div className="hero-image-box" data-animate data-delay="100">
+            <img src="/hero_car.png" alt="Premium Luxury Sedan" className="hero-car-img" />
           </div>
         </div>
       </section>
 
-      <section className="search-section">
+      {/* Booking Widget */}
+      <section className="booking-widget-section">
+        <div className="section-container" data-animate>
+          <div className="booking-widget">
+            <h3>Start Your Reservation</h3>
+            <SearchForm onSearch={handleSearch} />
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="corporate-features bg-light">
         <div className="section-container">
-          <h2>Find Your Perfect Rental Car</h2>
-          <SearchForm onSearch={handleSearch} />
-        </div>
-      </section>
-
-      <section className="stats-section">
-        <div className="stats-grid section-container">
-          {stats.map((stat) => (
-            <div className="stat-card" key={stat.label}>
-              <h3>{stat.value}</h3>
-              <p>{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="estimator-section">
-        <div className="section-container estimator-grid">
-          <div className="estimator-panel">
-            <h2><FaCalculator /> Quick Fare Estimator</h2>
-            <p>Adjust trip values to preview expected rental fare before booking.</p>
-
-            <label>
-              Distance: {estimator.distanceKm} km
-              <input
-                type="range"
-                min="2"
-                max="60"
-                value={estimator.distanceKm}
-                onChange={(event) =>
-                  setEstimator((prev) => ({ ...prev, distanceKm: Number(event.target.value) }))
-                }
-              />
-            </label>
-
-            <label>
-              Duration: {estimator.durationMinutes} min
-              <input
-                type="range"
-                min="10"
-                max="180"
-                value={estimator.durationMinutes}
-                onChange={(event) =>
-                  setEstimator((prev) => ({ ...prev, durationMinutes: Number(event.target.value) }))
-                }
-              />
-            </label>
-
-            <label>
-              Per km: Rs. {estimator.farePerKm}
-              <input
-                type="range"
-                min="8"
-                max="30"
-                value={estimator.farePerKm}
-                onChange={(event) =>
-                  setEstimator((prev) => ({ ...prev, farePerKm: Number(event.target.value) }))
-                }
-              />
-            </label>
+          <div className="section-header center" data-animate>
+            <h2>Why Choose CarRental?</h2>
+            <p>Our commitment to excellence sets us apart in the car rental industry.</p>
           </div>
-
-          <aside className="estimator-result">
-            <p className="eyebrow">Estimated Trip Fare</p>
-            <h3>Rs. {estimatedFare}</h3>
-            <p className="meta"><FaClock /> {etaLabel}</p>
-            <ul>
-              <li>Distance charge: Rs. {estimator.distanceKm * estimator.farePerKm}</li>
-              <li>Time charge: Rs. {Math.round((estimator.durationMinutes / 60) * estimator.farePerHour)}</li>
-              <li>No hidden booking fee</li>
-            </ul>
-            <Link to="/cabs" className="hero-btn primary full">Book This Car</Link>
-          </aside>
-        </div>
-      </section>
-
-      <section className="steps-section">
-        <div className="section-container">
-          <h2>How CarRental Works</h2>
-          <div className="steps-grid">
-            {howItWorks.map((step, index) => {
-              const Icon = step.icon;
+          <div className="features-grid">
+            {features.map((feature, idx) => {
+              const Icon = feature.icon;
               return (
-                <article className="step-card" key={step.title}>
-                  <div className="step-header">
-                    <span className="step-number">0{index + 1}</span>
-                    <Icon className="step-icon" />
+                <div className="feature-card" key={idx} data-animate data-delay={idx * 50}>
+                  <div className="feature-icon-wrapper">
+                    <Icon className="feature-icon" />
                   </div>
-                  <h3>{step.title}</h3>
-                  <p>{step.description}</p>
-                </article>
+                  <h4>{feature.title}</h4>
+                  <p>{feature.description}</p>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section className="info-section">
+      {/* Steps Section */}
+      <section className="corporate-steps">
         <div className="section-container">
-          <h2>Why Choose CarRental?</h2>
-
-          <div className="info-grid">
-            <div className="info-card">
-              <FaCar className="info-icon" />
-              <h3>Wide Selection</h3>
-              <p>Choose from our fleet of well-maintained vehicles for every occasion</p>
-            </div>
-
-            <div className="info-card">
-              <FaUserTie className="info-icon" />
-              <h3>Expert Drivers</h3>
-              <p>Professional drivers who know the city inside out</p>
-            </div>
-
-            <div className="info-card">
-              <FaTags className="info-icon" />
-              <h3>Transparent Pricing</h3>
-              <p>No hidden charges. What you see is what you pay</p>
-            </div>
-
-            <div className="info-card">
-              <FaHeadset className="info-icon" />
-              <h3>24/7 Support</h3>
-              <p>Our customer support team is always available</p>
-            </div>
-
-            <div className="info-card">
-              <FaLock className="info-icon" />
-              <h3>Secure Payment</h3>
-              <p>Multiple secure payment options available</p>
-            </div>
-
-            <div className="info-card">
-              <FaStar className="info-icon" />
-              <h3>Top Rated</h3>
-              <p>Trusted by thousands of happy customers</p>
-            </div>
+          <div className="section-header" data-animate>
+            <h2>A Seamless Process</h2>
+            <p>Booking a vehicle has never been this straightforward.</p>
+          </div>
+          <div className="steps-container">
+            {steps.map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <div className="step-item" key={idx} data-animate data-delay={idx * 50}>
+                  <div className="step-number">0{idx + 1}</div>
+                  <div className="step-content">
+                    <Icon className="step-icon" />
+                    <h4>{step.title}</h4>
+                    <p>{step.description}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="testimonials-section">
+      {/* Statistics Section */}
+      <section className="corporate-stats bg-dark">
+        <div className="section-container stats-grid">
+          {stats.map((stat, idx) => (
+            <div className="stat-block" key={stat.label} data-animate data-delay={idx * 50}>
+              <h2>{stat.value}</h2>
+              <p>{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Estimator Section */}
+      <section className="corporate-estimator bg-light">
         <div className="section-container">
-          <h2>What Customers Say</h2>
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial) => (
-              <article className="testimonial-card" key={testimonial.name}>
-                <p className="testimonial-quote">"{testimonial.quote}"</p>
-                <h4>{testimonial.name}</h4>
-                <span>{testimonial.role}</span>
-              </article>
-            ))}
+          <div className="estimator-wrapper" data-animate>
+            <div className="estimator-content">
+              <h2>Quick Fare Estimator</h2>
+              <p>Plan your budget ahead of time with our transparent estimating tool.</p>
+
+              <div className="estimator-controls">
+                <div className="slider-box">
+                  <div className="slider-label">
+                    <span>Est. Distance</span>
+                    <strong>{estimator.distanceKm} km</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="500"
+                    className="corporate-slider"
+                    value={estimator.distanceKm}
+                    onChange={(e) => setEstimator(prev => ({ ...prev, distanceKm: Number(e.target.value) }))}
+                  />
+                </div>
+
+                <div className="slider-box">
+                  <div className="slider-label">
+                    <span>Duration</span>
+                    <strong>{estimator.durationDays} Days</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    className="corporate-slider"
+                    value={estimator.durationDays}
+                    onChange={(e) => setEstimator(prev => ({ ...prev, durationDays: Number(e.target.value) }))}
+                  />
+                </div>
+
+                <div className="slider-box">
+                  <div className="slider-label">
+                    <span>Vehicle Class</span>
+                    <strong>{estimator.categoryMultiplier === 1 ? 'Economy' : estimator.categoryMultiplier === 1.5 ? 'Business' : 'Luxury'}</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="2"
+                    step="0.5"
+                    className="corporate-slider"
+                    value={estimator.categoryMultiplier}
+                    onChange={(e) => setEstimator(prev => ({ ...prev, categoryMultiplier: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="estimator-summary">
+              <h4>Estimated Total</h4>
+              <h2 className="price-tag">Rs. {estimatedFare.toLocaleString()}</h2>
+              <ul className="estimator-list">
+                <li><FaWallet /> Transparent Fare Calculator</li>
+                <li><FaPiggyBank /> Excellent Value for Money</li>
+                <li><FaClock /> Flexible Return Times</li>
+              </ul>
+              <Link to="/cabs" className="btn-corporate primary full-width">Reserve Now</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -280,6 +242,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
-
-

@@ -110,24 +110,24 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
   return (
     <div className="page">
       <section className="page-grid">
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="0">
           <p>Name</p>
           <h3>{user?.name ?? 'Admin user'}</h3>
           <span className="muted">Profile owner</span>
         </div>
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="90">
           <p>Role</p>
           <h3>{user?.role ?? 'Admin'}</h3>
           <span className="muted">Access level</span>
         </div>
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="180">
           <p>Email</p>
           <h3>{user?.email ?? 'admin@cityride.com'}</h3>
           <span className="muted">Primary contact</span>
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel" data-animate>
         <div className="panel-header">
           <div>
             <h3>Profile</h3>
@@ -148,7 +148,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
         {status ? <p className="muted">{status}</p> : null}
 
         <div className="stack">
-          <div className="row-card">
+          <div className="row-card" data-animate data-delay="0">
             <div>
               <p className="row-title">Contact details</p>
               <span className="muted">{user?.phone ?? 'No phone set'}</span>
@@ -159,7 +159,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
             </button>
           </div>
 
-          <div className="row-card">
+          <div className="row-card" data-animate data-delay="90">
             <div>
               <p className="row-title">Security</p>
               <span className="muted">Keep your account secure.</span>
@@ -170,7 +170,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
             </button>
           </div>
 
-          <div className="row-card">
+          <div className="row-card" data-animate data-delay="180">
             <div>
               <p className="row-title">Session</p>
               <span className="muted">Signed in on this device</span>

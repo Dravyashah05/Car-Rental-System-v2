@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 
 const authRoutes = require("./routes/authRoutes");
 const rideRoutes = require("./routes/rideRoutes");
-const driverRoutes = require("./routes/driverRoutes");
+const ownerRoutes = require("./routes/ownerRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const cabRoutes = require("./routes/cabRoutes");
 const healthRoutes = require("./routes/healthRoutes");
@@ -25,7 +25,8 @@ app.use(morgan("dev"));
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/rides", rideRoutes);
-app.use("/api/drivers", driverRoutes);
+app.use("/api/owners", ownerRoutes);
+app.use("/api/drivers", ownerRoutes);
 app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/cabs", cabRoutes);
 app.use("/api/users", userRoutes);

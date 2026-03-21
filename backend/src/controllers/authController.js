@@ -13,6 +13,8 @@ const getMasterAdminConfig = () => ({
   password: process.env.MASTER_ADMIN_PASSWORD || "Admin@12345"
 });
 
+const normalizeRole = (role) => (role === "driver" ? "owner" : role);
+
 const toPublicUser = (user) => ({
   id: user._id,
   name: user.name,
@@ -21,7 +23,7 @@ const toPublicUser = (user) => ({
   avatar: user.avatar,
   age: user.age,
   gender: user.gender,
-  role: user.role
+  role: normalizeRole(user.role)
 });
 
 const register = asyncHandler(async (req, res) => {
@@ -33,7 +35,17 @@ const register = asyncHandler(async (req, res) => {
   if (existing) {
     return res.status(409).json({ message: "Email already registered" });
   }
-  const user = await User.create({ name, email, phone, password, avatar, age, gender, role });
+  const normalizedRole = role === "driver" ? "owner" : role;
+  const user = await User.create({
+    name,
+    email,
+    phone,
+    password,
+    avatar,
+    age,
+    gender,
+    role: normalizedRole
+  });
   const token = signToken(user._id);
   res.status(201).json({
     user: toPublicUser(user),

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBooking } from '../context/BookingContext';
@@ -167,7 +167,7 @@ const BookingsPage: React.FC = () => {
                   <div key={booking.id} className="booking-card">
                     <div className="booking-card-top">
                       <div>
-                        <div className="booking-id">Booking #{booking.id.slice(-8)}</div>
+                        <div className="booking-id">Booking #{(booking.id || '').slice(-8)}</div>
                         <div className="booking-route">
                           {booking.pickupLocation}
                           {' -> '}
@@ -175,7 +175,7 @@ const BookingsPage: React.FC = () => {
                         </div>
                       </div>
                       <span className={`status-pill status-${booking.status}`}>
-                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        {(booking.status || 'pending').charAt(0).toUpperCase() + (booking.status || 'pending').slice(1)}
                       </span>
                     </div>
 

@@ -62,12 +62,12 @@ function AddCarPage() {
   const loadDrivers = async () => {
     setIsLoadingDrivers(true)
     try {
-      const data = await apiFetch<Driver[]>('/api/drivers')
+      const data = await apiFetch<Driver[]>('/api/owners')
       setDrivers(data)
     } catch (err) {
       setStatus({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to load drivers',
+        message: err instanceof Error ? err.message : 'Failed to load owners',
       })
     } finally {
       setIsLoadingDrivers(false)
@@ -99,7 +99,7 @@ function AddCarPage() {
     setStatus(null)
 
     if (!driverId) {
-      setStatus({ type: 'error', message: 'Please select a driver before saving.' })
+      setStatus({ type: 'error', message: 'Please select an owner before saving.' })
       return
     }
 
@@ -108,7 +108,7 @@ function AddCarPage() {
       await apiFetch<VehicleResponse>('/api/vehicles', {
         method: 'POST',
         body: JSON.stringify({
-          driverId,
+          ownerId: driverId,
           make,
           model,
           plateNumber,
@@ -183,7 +183,7 @@ function AddCarPage() {
           color: editVehicleForm.color,
           seats: editVehicleForm.seats,
           imageUrl: editVehicleForm.imageUrl.trim() || undefined,
-          driver: editVehicleForm.driverId || undefined,
+          ownerId: editVehicleForm.driverId || undefined,
         }),
       })
       setStatus({ type: 'success', message: 'Vehicle updated successfully.' })
@@ -199,9 +199,31 @@ function AddCarPage() {
     }
   }
 
+  const handleDeleteVehicle = async () => {
+    if (!editingVehicle) return
+    if (!window.confirm('Are you sure you want to delete this vehicle?')) return
+    setStatus(null)
+    setIsSubmitting(true)
+    try {
+      await apiFetch(`/api/vehicles/${editingVehicle._id}`, {
+        method: 'DELETE',
+      })
+      setStatus({ type: 'success', message: 'Vehicle deleted successfully.' })
+      closeEditVehicle()
+      await loadVehicles()
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to delete vehicle',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="page">
-      <section className="panel">
+      <section className="panel" data-animate>
         <div className="panel-header">
           <div>
             <h3>Fleet vehicles</h3>
@@ -233,7 +255,7 @@ function AddCarPage() {
             <span>Image</span>
             <span>Vehicle</span>
             <span>Plate</span>
-            <span>Driver</span>
+            <span>Owner</span>
             <span>Seats</span>
           </div>
           {vehicles.length === 0 && !isLoadingVehicles ? (
@@ -387,14 +409,14 @@ function AddCarPage() {
                 </div>
               </label>
               <label className="field">
-                <span>Assigned driver</span>
+                <span>Assigned owner</span>
                 <select value={driverId} onChange={(event) => setDriverId(event.target.value)} required>
                   <option value="" disabled>
-                    {isLoadingDrivers ? 'Loading drivers...' : 'Select driver'}
+                    {isLoadingDrivers ? 'Loading owners...' : 'Select owner'}
                   </option>
                   {drivers.map((driver) => {
                     const label =
-                      driver.user?.name || driver.user?.email || `Driver ${driver._id.slice(-6)}`
+                      driver.user?.name || driver.user?.email || `Owner ${driver._id.slice(-6)}`
                     return (
                       <option key={driver._id} value={driver._id}>
                         {label}
@@ -484,7 +506,7 @@ function AddCarPage() {
                 <strong>{selectedVehicle.seats ?? 'N/A'}</strong>
               </div>
               <div className="detail-item">
-                <span className="detail-label"><span className="detail-icon">DR</span>Assigned driver</span>
+                <span className="detail-label"><span className="detail-icon">OW</span>Assigned owner</span>
                 <strong>
                   {selectedVehicle.driver?.user?.name ||
                     selectedVehicle.driver?.user?.email ||
@@ -588,7 +610,7 @@ function AddCarPage() {
                 </div>
               </label>
               <label className="field">
-                <span>Assigned driver</span>
+                <span>Assigned owner</span>
                 <select
                   value={editVehicleForm.driverId}
                   onChange={(event) =>
@@ -598,7 +620,7 @@ function AddCarPage() {
                   <option value="">Unassigned</option>
                   {drivers.map((driver) => {
                     const label =
-                      driver.user?.name || driver.user?.email || `Driver ${driver._id.slice(-6)}`
+                      driver.user?.name || driver.user?.email || `Owner ${driver._id.slice(-6)}`
                     return (
                       <option key={driver._id} value={driver._id}>
                         {label}
@@ -608,6 +630,15 @@ function AddCarPage() {
                 </select>
               </label>
               <div className="modal-actions">
+                <button
+                  className="ghost"
+                  type="button"
+                  onClick={handleDeleteVehicle}
+                  style={{ color: '#ef4444', marginRight: 'auto' }}
+                  disabled={isSubmitting}
+                >
+                  Delete
+                </button>
                 <button className="ghost" type="button" onClick={closeEditVehicle}>
                   Cancel
                 </button>

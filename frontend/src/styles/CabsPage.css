@@ -1,6 +1,7 @@
-﻿.cabs-page {
+.cabs-page {
   min-height: 100vh;
   padding: 34px 20px 56px;
+  background: var(--hero-bg);
 }
 
 .cabs-container {
@@ -15,6 +16,7 @@
 
 .cabs-header h1 {
   font-size: clamp(2rem, 3.4vw, 2.8rem);
+  color: var(--color-text);
 }
 
 .cabs-header p {
@@ -30,7 +32,7 @@
 }
 
 .filters-sidebar {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 18px;
   padding: 20px;
@@ -40,6 +42,7 @@
   height: fit-content;
   position: sticky;
   top: 94px;
+  box-shadow: var(--shadow-soft);
 }
 
 .filters-head {
@@ -50,14 +53,16 @@
 
 .filters-head h2 {
   font-size: 1.2rem;
+  color: var(--color-text);
 }
 
 .filters-head span {
   font-size: 0.8rem;
   color: var(--color-text-soft);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
   border-radius: 999px;
   padding: 5px 10px;
+  border: 1px solid var(--color-border);
 }
 
 .filter-group {
@@ -72,15 +77,20 @@
 
 .filter-group input[type="range"] {
   width: 100%;
-  accent-color: #ff8367;
+  accent-color: var(--color-accent);
 }
 
 .filter-group select {
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
   color: var(--color-text);
   padding: 10px 12px;
+  outline: none;
+}
+
+.filter-group select:focus {
+  border-color: var(--color-accent);
 }
 
 .cabs-grid {
@@ -93,7 +103,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 54px 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 16px;
 }
@@ -104,13 +114,14 @@
 }
 
 .cabs-stats {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 16px;
   display: flex;
   justify-content: space-between;
   color: var(--color-text-soft);
+  box-shadow: var(--shadow-soft);
 }
 
 @media (max-width: 980px) {
@@ -146,4 +157,3 @@
     gap: 8px;
   }
 }
-

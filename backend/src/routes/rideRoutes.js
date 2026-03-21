@@ -4,7 +4,8 @@ const {
   listRides,
   getRide,
   assignDriver,
-  updateStatus
+  updateStatus,
+  deleteRide
 } = require("../controllers/rideController");
 const { authenticate, authorize } = require("../middleware/auth");
 
@@ -24,6 +25,7 @@ router.get("/", (req, res, next) => {
 router.get("/:id", getRide);
 
 router.patch("/:id/assign", authorize("admin"), assignDriver);
-router.patch("/:id/status", authorize("driver", "admin"), updateStatus);
+router.patch("/:id/status", authorize("owner", "driver", "admin"), updateStatus);
+router.delete("/:id", authorize("admin"), deleteRide);
 
 module.exports = router;

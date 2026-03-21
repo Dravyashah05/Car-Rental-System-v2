@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useAuth, AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
-import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -13,7 +14,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import ScrollReveal from './components/ScrollReveal';
 import './styles/GlobalLoader.css';
+import './styles/animations.css';
 import './App.css';
 
 function RouteChangeLoader() {
@@ -39,35 +42,85 @@ function RouteChangeLoader() {
   );
 }
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   return (
-    <AuthProvider>
-      <BookingProvider>
-        <Router
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <RouteChangeLoader />
-          <Navbar />
-          <main style={{ minHeight: 'calc(100vh - 140px)' }} className="app-main">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/cabs" element={<CabsPage />} />
-              <Route path="/book/:cabId" element={<BookingPage />} />
-              <Route path="/bookings" element={<BookingsPage />} />
-              <Route path="/payments" element={<PaymentsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </Router>
-      </BookingProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BookingProvider>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <ScrollReveal />
+            <RouteChangeLoader />
+            <Navbar />
+            <main style={{ minHeight: 'calc(100vh - 140px)' }} className="app-main">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/cabs" element={<CabsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                
+                <Route
+                  path="/book/:cabId"
+                  element={
+                    <ProtectedRoute>
+                      <BookingPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/bookings"
+                  element={
+                    <ProtectedRoute>
+                      <BookingsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/payments"
+                  element={
+                    <ProtectedRoute>
+                      <PaymentsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </main>
+            <Footer />
+          </Router>
+        </BookingProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

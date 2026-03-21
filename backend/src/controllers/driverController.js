@@ -2,6 +2,15 @@ const Driver = require("../models/Driver");
 const User = require("../models/User");
 const asyncHandler = require("../middleware/asyncHandler");
 
+const normalizeDriverUserRole = (driverDoc) => {
+  if (!driverDoc) return driverDoc;
+  const plain = driverDoc.toObject ? driverDoc.toObject() : driverDoc;
+  if (plain.user && plain.user.role === "driver") {
+    plain.user.role = "owner";
+  }
+  return plain;
+};
+
 const createDriver = asyncHandler(async (req, res) => {
   const { userId, licenseNumber, isActive } = req.body;
   if (!userId || !licenseNumber) {
@@ -11,10 +20,10 @@ const createDriver = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
-  user.role = "driver";
+  user.role = "owner";
   await user.save();
   const driver = await Driver.create({ user: userId, licenseNumber, isActive });
-  res.status(201).json(driver);
+  res.status(201).json(normalizeDriverUserRole(driver));
 });
 
 const createDriverWithUser = asyncHandler(async (req, res) => {
@@ -46,7 +55,7 @@ const createDriverWithUser = asyncHandler(async (req, res) => {
     avatar,
     age,
     gender,
-    role: "driver"
+    role: "owner"
   });
 
   const driver = await Driver.create({
@@ -59,7 +68,7 @@ const createDriverWithUser = asyncHandler(async (req, res) => {
     "user",
     "name email role phone avatar age gender createdAt"
   );
-  res.status(201).json(populated);
+  res.status(201).json(normalizeDriverUserRole(populated));
 });
 
 const listDrivers = asyncHandler(async (req, res) => {
@@ -67,7 +76,21 @@ const listDrivers = asyncHandler(async (req, res) => {
     "user",
     "name email role phone avatar age gender createdAt"
   );
-  res.json(drivers);
+  res.json(drivers.map((driver) => normalizeDriverUserRole(driver)));
+});
+
+const getCurrentDriver = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const driver = await Driver.findOne({ user: req.user._id }).populate(
+    "user",
+    "name email role phone avatar age gender createdAt"
+  );
+  if (!driver) {
+    return res.status(404).json({ message: "Owner not found" });
+  }
+  res.json(normalizeDriverUserRole(driver));
 });
 
 const getDriver = asyncHandler(async (req, res) => {
@@ -76,9 +99,9 @@ const getDriver = asyncHandler(async (req, res) => {
     "name email role phone avatar age gender createdAt"
   );
   if (!driver) {
-    return res.status(404).json({ message: "Driver not found" });
+    return res.status(404).json({ message: "Owner not found" });
   }
-  res.json(driver);
+  res.json(normalizeDriverUserRole(driver));
 });
 
 const updateDriver = asyncHandler(async (req, res) => {
@@ -87,15 +110,15 @@ const updateDriver = asyncHandler(async (req, res) => {
     runValidators: true
   });
   if (!driver) {
-    return res.status(404).json({ message: "Driver not found" });
+    return res.status(404).json({ message: "Owner not found" });
   }
-  res.json(driver);
+  res.json(normalizeDriverUserRole(driver));
 });
 
 const deleteDriver = asyncHandler(async (req, res) => {
   const driver = await Driver.findById(req.params.id);
   if (!driver) {
-    return res.status(404).json({ message: "Driver not found" });
+    return res.status(404).json({ message: "Owner not found" });
   }
   await driver.deleteOne();
   res.status(204).send();
@@ -105,6 +128,7 @@ module.exports = {
   createDriver,
   createDriverWithUser,
   listDrivers,
+  getCurrentDriver,
   getDriver,
   updateDriver,
   deleteDriver

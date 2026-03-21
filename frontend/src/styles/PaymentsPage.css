@@ -1,6 +1,7 @@
 .payments-page {
   min-height: calc(100vh - 140px);
   padding: 38px 20px 70px;
+  background: var(--hero-bg);
 }
 
 .payments-container {
@@ -22,7 +23,7 @@
   display: grid;
   place-items: center;
   font-size: 1.1rem;
-  color: #ffd9cf;
+  color: var(--color-accent);
   border: 1px solid rgba(255, 131, 103, 0.4);
   background: rgba(255, 131, 103, 0.15);
 }
@@ -33,6 +34,7 @@
   align-items: center;
   gap: 10px;
   font-size: clamp(1.8rem, 3vw, 2.3rem);
+  color: var(--color-text);
 }
 
 .payments-header p {
@@ -49,7 +51,7 @@
 
 .payments-summary,
 .payments-form {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: 20px;
   box-shadow: var(--shadow-soft);
@@ -58,26 +60,27 @@
 .payments-summary {
   padding: 18px;
   position: sticky;
-  top: 20px;
+  top: 94px;
 }
 
 .payments-summary h3,
 .payments-form h3 {
   margin: 0 0 14px;
   font-size: 1.05rem;
+  color: var(--color-text);
 }
 
 .summary-amount {
   border-radius: 14px;
   padding: 14px;
   border: 1px solid rgba(255, 131, 103, 0.3);
-  background: rgba(255, 131, 103, 0.14);
+  background: rgba(255, 131, 103, 0.1);
   margin-bottom: 14px;
 }
 
 .summary-amount span {
   display: block;
-  color: #ffe2d8;
+  color: var(--color-text-soft);
   font-size: 0.88rem;
   margin-bottom: 5px;
 }
@@ -86,6 +89,7 @@
   font-size: 2rem;
   line-height: 1;
   letter-spacing: 0.01em;
+  color: var(--color-text);
 }
 
 .summary-details {
@@ -112,43 +116,15 @@
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  border-top: 1px dashed var(--color-border);
   padding-top: 12px;
   color: var(--color-text-soft);
   font-size: 0.86rem;
 }
 
 .summary-safe svg {
-  color: #ffc9bb;
+  color: var(--color-accent);
   margin-top: 1px;
-}
-
-[data-theme='light'] .payments-summary,
-[data-theme='light'] .payments-form {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(22, 65, 128, 0.2);
-}
-
-[data-theme='light'] .summary-amount {
-  border-color: rgba(255, 131, 103, 0.28);
-  background: rgba(255, 131, 103, 0.1);
-}
-
-[data-theme='light'] .summary-amount span {
-  color: #6a3f36;
-}
-
-[data-theme='light'] .method-card {
-  background: rgba(255, 255, 255, 0.95);
-  color: #476894;
-}
-
-[data-theme='light'] .method-card.active {
-  color: #7a2f1c;
-}
-
-[data-theme='light'] .cash-note {
-  color: #166534;
 }
 
 .payments-form {
@@ -165,7 +141,7 @@
 .method-card {
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: var(--color-surface-strong);
+  background: var(--color-bg);
   color: var(--color-text-soft);
   padding: 12px;
   display: inline-flex;
@@ -174,18 +150,19 @@
   gap: 8px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .method-card:hover {
-  transform: translateY(-1px);
+  border-color: var(--color-accent);
+  background: var(--color-surface);
 }
 
 .method-card.active {
-  color: #ffe7df;
-  border-color: rgba(255, 131, 103, 0.75);
-  background: rgba(255, 131, 103, 0.18);
-  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.16);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: rgba(255, 131, 103, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.1);
 }
 
 .fields-grid {
@@ -214,22 +191,23 @@
   padding: 11px 12px;
   border-radius: 12px;
   border: 1px solid var(--color-border);
-  background: var(--color-surface-strong);
+  background: var(--color-bg);
   color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s ease;
 }
 
 .field input:focus {
-  outline: none;
-  border-color: rgba(255, 131, 103, 0.78);
-  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.16);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.1);
 }
 
 .cash-note {
   border-radius: 12px;
   padding: 12px;
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #bbf7d0;
+  background: rgba(93, 225, 160, 0.1);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
   font-size: 0.9rem;
   margin-bottom: 4px;
 }
@@ -249,10 +227,16 @@
   border-radius: 12px;
   padding: 13px;
   margin-top: 18px;
-  background: linear-gradient(120deg, #ff8367, #ffc24d);
-  color: #2d1d17;
+  background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
+  color: #1f1f1f;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.payments-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 131, 103, 0.25);
 }
 
 .payments-submit-btn:disabled {
@@ -261,7 +245,7 @@
 }
 
 .error-text {
-  color: #f87171;
+  color: var(--color-danger);
   font-size: 0.84rem;
 }
 
@@ -270,14 +254,15 @@
   margin: 70px auto;
   padding: 28px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 131, 103, 0.3);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-alt);
   box-shadow: var(--shadow-soft);
   text-align: center;
 }
 
 .payments-empty h2 {
   margin-bottom: 8px;
+  color: var(--color-text);
 }
 
 .payments-empty p {
@@ -292,8 +277,8 @@
   border-radius: 12px;
   padding: 11px 16px;
   font-weight: 700;
-  background: linear-gradient(120deg, #ff8367, #ffc24d);
-  color: #2d1d17;
+  background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
+  color: #1f1f1f;
 }
 
 @media (max-width: 980px) {

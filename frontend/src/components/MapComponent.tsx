@@ -129,7 +129,10 @@ const MapComponent: React.FC<MapProps> = ({
     mapRef.current?.fitBounds(group.getBounds().pad(0.1));
 
     return () => {
-      // Cleanup on unmount
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
   }, [pickupLocation, dropoffLocation, showRoute]);
 

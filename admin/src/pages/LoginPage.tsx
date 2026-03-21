@@ -14,7 +14,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
 
   return (
     <div className="login">
-      <div className="login-card">
+      <div className="login-card" data-animate>
         <div className="login-brand">
           <div className="brand-mark">CR</div>
           <div>
@@ -94,25 +94,25 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
       </div>
 
       <div className="login-panel">
-        <div className="panel-card">
+        <div className="panel-card" data-animate data-delay="120">
           <p className="eyebrow">Operations pulse</p>
           <h2>Stay on top of every rental</h2>
           <p className="muted">
-            Monitor live demand, assign drivers, and keep your fleet running smoothly in one
+            Monitor live demand, assign owners, and keep your fleet running smoothly in one
             command center.
           </p>
           <div className="login-metrics">
-            <div>
+            <div data-animate data-delay="0">
               <h3>1,284</h3>
               <p>Rentals completed today</p>
             </div>
-            <div>
+            <div data-animate data-delay="90">
               <h3>4m 12s</h3>
               <p>Average wait time</p>
             </div>
-            <div>
+            <div data-animate data-delay="180">
               <h3>326</h3>
-              <p>Drivers online now</p>
+              <p>Owners online now</p>
             </div>
           </div>
         </div>

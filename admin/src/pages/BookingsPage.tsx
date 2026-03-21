@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 
 type Ride = {
@@ -29,6 +30,7 @@ const statusClassMap: Record<string, string> = {
 }
 
 function BookingsPage() {
+  const location = useLocation()
   const [rides, setRides] = useState<Ride[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -63,6 +65,11 @@ function BookingsPage() {
       isActive = false
     }
   }, [])
+
+  const searchQuery = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    return (params.get('q') ?? '').trim().toLowerCase()
+  }, [location.search])
 
   const stats = useMemo(() => {
     const total = rides.length
@@ -106,38 +113,76 @@ function BookingsPage() {
     }
   }
 
+  const handleDeleteRide = async () => {
+    if (!selectedRide) return
+    if (!window.confirm('Are you sure you want to delete this booking?')) return
+    setError('')
+    setIsUpdatingRide(true)
+    try {
+      await apiFetch(`/api/rides/${selectedRide._id}`, {
+        method: 'DELETE',
+      })
+      setRides((prev) => prev.filter((ride) => ride._id !== selectedRide._id))
+      closeRideModal()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to delete booking')
+    } finally {
+      setIsUpdatingRide(false)
+    }
+  }
+
+  const filteredRides = useMemo(() => {
+    if (!searchQuery) return rides
+    return rides.filter((ride) => {
+      const route = `${ride.pickup?.address ?? ''} ${ride.dropoff?.address ?? ''}`
+      const rider = `${ride.rider?.name ?? ''} ${ride.rider?.email ?? ''}`
+      const haystack = [
+        ride._id,
+        rider,
+        route,
+        ride.status,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+      return haystack.includes(searchQuery)
+    })
+  }, [rides, searchQuery])
+
+  const visibleRides = searchQuery ? filteredRides : rides
+
   return (
     <div className="page">
       <section className="page-grid">
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="0">
           <p>Total bookings</p>
           <h3>{stats.total}</h3>
           <span className="muted">All rental requests</span>
         </div>
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="90">
           <p>Pending assignment</p>
           <h3>{stats.pending}</h3>
-          <span className="muted">Waiting for driver</span>
+          <span className="muted">Waiting for owner</span>
         </div>
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="180">
           <p>Active rentals</p>
           <h3>{stats.active}</h3>
           <span className="muted">Assigned or in progress</span>
         </div>
-        <div className="info-card">
+        <div className="info-card" data-animate data-delay="270">
           <p>Completed rentals</p>
           <h3>{stats.completed}</h3>
           <span className="muted">Finished bookings</span>
         </div>
       </section>
 
-      <section className="panel">
+      <section className="panel" data-animate data-delay="0">
         <div className="panel-header">
           <div>
             <h3>Bookings</h3>
             <p>Monitor rentals and manage status updates</p>
           </div>
-          <button className="ghost">Assign driver</button>
+          <button className="ghost">Assign owner</button>
         </div>
         {isLoading ? (
           <p className="muted">Loading bookings...</p>
@@ -145,6 +190,8 @@ function BookingsPage() {
           <p className="muted">{error}</p>
         ) : rides.length === 0 ? (
           <p className="muted">No bookings available yet.</p>
+        ) : visibleRides.length === 0 ? (
+          <p className="muted">No bookings match your search.</p>
         ) : (
           <div className="table">
             <div className="table-row table-head">
@@ -154,13 +201,13 @@ function BookingsPage() {
               <span>Status</span>
               <span>Action</span>
             </div>
-            {rides.map((ride) => {
+            {visibleRides.map((ride) => {
               const statusKey = (ride.status ?? 'requested').toLowerCase()
               const route = `${ride.pickup?.address ?? 'Unknown'} -> ${ride.dropoff?.address ?? 'Unknown'}`
               const riderName = ride.rider?.name ?? ride.rider?.email ?? 'Unknown'
               return (
                 <div key={ride._id} className="table-row clickable-row" onClick={() => openRideModal(ride)}>
-                  <span className="mono">{ride._id.slice(-8).toUpperCase()}</span>
+                  <span className="mono">{(ride._id || '').slice(-8).toUpperCase()}</span>
                   <span>{riderName}</span>
                   <span>{route}</span>
                   <span className={`status ${statusClassMap[statusKey] ?? 'requested'}`}>
@@ -191,7 +238,7 @@ function BookingsPage() {
                 <h3>Booking details</h3>
                 <p className="muted">Trip, customer, and status information.</p>
               </div>
-              <span className="tag">Booking {selectedRide._id.slice(-8).toUpperCase()}</span>
+              <span className="tag">Booking {(selectedRide._id || '').slice(-8).toUpperCase()}</span>
             </div>
             <div className="detail-hero">
               <div className="detail-hero-media">BK</div>
@@ -244,6 +291,15 @@ function BookingsPage() {
               </div>
             ) : null}
             <div className="modal-actions">
+              <button
+                className="ghost"
+                type="button"
+                onClick={handleDeleteRide}
+                style={{ color: '#ef4444', marginRight: 'auto' }}
+                disabled={isUpdatingRide}
+              >
+                Delete
+              </button>
               <button className="ghost" type="button" onClick={closeRideModal}>
                 Close
               </button>
@@ -265,5 +321,3 @@ function BookingsPage() {
 }
 
 export default BookingsPage
-
-

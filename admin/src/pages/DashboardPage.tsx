@@ -56,7 +56,7 @@ function DashboardPage() {
     try {
       const [ridesData, driversData, usersData, vehiclesData] = await Promise.all([
         apiFetch<Ride[]>('/api/rides'),
-        apiFetch<Driver[]>('/api/drivers'),
+        apiFetch<Driver[]>('/api/owners'),
         apiFetch<User[]>('/api/users'),
         apiFetch<Vehicle[]>('/api/vehicles'),
       ])
@@ -158,9 +158,9 @@ function DashboardPage() {
 
   const signals = [
     {
-      label: 'Driver readiness',
+      label: 'Owner readiness',
       value: `${driverReadiness}%`,
-      note: `${activeDrivers.length} active drivers`,
+      note: `${activeDrivers.length} active owners`,
       trend: `${drivers.length} total`,
       trendDirection: 'up',
     },
@@ -219,31 +219,31 @@ function DashboardPage() {
 
   return (
     <div className="page">
-      <section className="hero">
+      <section className="hero" data-animate>
         <div>
           <p className="hero-label">Operations pulse</p>
           <div className="hero-value">{demandIndex}%</div>
           <p className="hero-note">
             {summaryError
               ? summaryError
-              : `Tracking ${rides.length} rentals and ${drivers.length} drivers today.`}
+              : `Tracking ${rides.length} rentals and ${drivers.length} owners today.`}
           </p>
         </div>
         <div className="hero-stats">
-          <div className="stat-card">
+          <div className="stat-card" data-animate data-delay="0">
             <p>Active rentals</p>
             <h3>{activeRides.length}</h3>
             <span className="trend up">{rides.length} total rentals</span>
           </div>
-          <div className="stat-card">
+          <div className="stat-card" data-animate data-delay="90">
             <p>Avg. wait time</p>
             <h3>{avgWaitMinutes}m</h3>
             <span className="trend down">Based on active rentals</span>
           </div>
-          <div className="stat-card">
-            <p>Driver availability</p>
+          <div className="stat-card" data-animate data-delay="180">
+            <p>Owner availability</p>
             <h3>{activeDrivers.length}</h3>
-            <span className="trend up">{drivers.length} total drivers</span>
+            <span className="trend up">{drivers.length} total owners</span>
           </div>
         </div>
       </section>
@@ -251,8 +251,13 @@ function DashboardPage() {
       {isLoadingSummary ? <p className="muted">Loading dashboard data...</p> : null}
 
       <section className="signal-grid">
-        {signals.map((signal) => (
-          <div key={signal.label} className="signal-card">
+        {signals.map((signal, index) => (
+          <div
+            key={signal.label}
+            className="signal-card"
+            data-animate
+            data-delay={index * 90}
+          >
             <span className="signal-label">{signal.label}</span>
             <div className="signal-value">{signal.value}</div>
             <p className="signal-note">{signal.note}</p>
@@ -264,22 +269,22 @@ function DashboardPage() {
       </section>
 
       <section className="kpi-grid">
-        <div className="kpi">
+        <div className="kpi" data-animate data-delay="0">
           <p>Revenue today</p>
           <h2>Rs. {revenueToday.toFixed(2)}</h2>
           <span className="badge">{completedRides.length} completed rentals</span>
         </div>
-        <div className="kpi">
+        <div className="kpi" data-animate data-delay="90">
           <p>Completed (7d)</p>
           <h2>{completedLast7Days}</h2>
           <span className="badge">{completedRides.length} total completed</span>
         </div>
-        <div className="kpi">
+        <div className="kpi" data-animate data-delay="180">
           <p>Cancellation rate</p>
           <h2>{cancellationRate.toFixed(1)}%</h2>
           <span className="badge danger">{cancelledRides.length} cancelled rentals</span>
         </div>
-        <div className="kpi">
+        <div className="kpi" data-animate data-delay="270">
           <p>Total users</p>
           <h2>{users.length}</h2>
           <span className="badge">{newUsers7Days} new this week</span>
@@ -287,7 +292,7 @@ function DashboardPage() {
       </section>
 
       <section className="content-grid">
-        <div className="panel">
+        <div className="panel" data-animate data-delay="0">
           <div className="panel-header">
             <div>
               <h3>Weekly revenue</h3>
@@ -310,7 +315,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="panel">
+        <div className="panel" data-animate data-delay="120">
           <div className="panel-header">
             <div>
               <h3>Recent bookings</h3>
@@ -380,57 +385,6 @@ function DashboardPage() {
                 </div>
               )
             })}
-          </div>
-        </div>
-
-        <div className="panel side-panel">
-          <div className="panel-header">
-            <div>
-              <h3>Fleet status</h3>
-              <p>Vehicles and driver coverage</p>
-            </div>
-          </div>
-          <div className="fleet">
-            <div>
-              <p>Total vehicles</p>
-              <strong>{vehicles.length}</strong>
-              <span className="muted">Registered fleet</span>
-            </div>
-            <div>
-              <p>Active drivers</p>
-              <strong>{activeDrivers.length}</strong>
-              <span className="muted">{drivers.length} total drivers</span>
-            </div>
-            <div>
-              <p>Active rentals</p>
-              <strong>{activeRides.length}</strong>
-              <span className="muted">In progress now</span>
-            </div>
-          </div>
-          <div className="divider" />
-          <div className="alerts">
-            <h4>Alerts</h4>
-            <div className="alert">
-              <span className="dot warn" />
-              <div>
-                <p>Airport zone surge expected in 30 min</p>
-                <span className="muted">Trigger surge 1.3x</span>
-              </div>
-            </div>
-            <div className="alert">
-              <span className="dot danger" />
-              <div>
-                <p>6 drivers nearing duty limit</p>
-                <span className="muted">Assign replacements</span>
-              </div>
-            </div>
-            <div className="alert">
-              <span className="dot ok" />
-              <div>
-                <p>Payments reconciled</p>
-                <span className="muted">Last sync 12 minutes ago</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
