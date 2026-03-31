@@ -8,7 +8,7 @@ export type AuthUser = {
   avatar?: string;
   age?: number;
   gender?: 'male' | 'female' | 'other';
-  role?: 'user' | 'driver' | 'admin';
+  role?: 'user' | 'driver' | 'owner' | 'admin';
 };
 
 type AuthResponse = {
@@ -46,6 +46,12 @@ const clearAuth = () => {
 const hasToken = () => Boolean(localStorage.getItem(TOKEN_KEY));
 
 export const authService = {
+  syncClerkUser: async (): Promise<AuthUser> => {
+    const response = await apiClient.get<AuthResponse>('/api/auth/sync');
+    const { user } = normalizeAuthResponse(response);
+    return user;
+  },
+
   login: async (email: string, password: string): Promise<AuthUser> => {
     const response = await apiClient.post<AuthResponse>('/api/auth/login', { email, password });
     const { user, token } = normalizeAuthResponse(response);

@@ -37,6 +37,7 @@
   border-radius: 18px;
   padding: 20px;
   box-shadow: var(--shadow-soft);
+  min-width: 0;
 }
 
 .footer-section h4 {
@@ -97,15 +98,20 @@
 .footer-feature {
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .footer-subscribe {
   display: flex;
   gap: 8px;
+  width: 100%;
+  align-items: stretch;
 }
 
 .footer-subscribe input {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-surface);
@@ -120,6 +126,7 @@
 }
 
 .footer-subscribe button {
+  flex: 0 0 42px;
   width: 42px;
   border: none;
   border-radius: 12px;

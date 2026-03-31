@@ -241,7 +241,7 @@ function OwnerRequestsPage() {
 
       {selectedRide ? (
         <div className="modal-backdrop" onClick={closeRideModal}>
-          <div className="modal" onClick={(event) => event.stopPropagation()}>
+          <div className="modal trip-details-modal" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
                 <h3>Rental request</h3>

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { cabService } from '../services/cabService';
 import CabCard from '../components/CabCard';
 import type { Cab } from '../types';
@@ -8,6 +8,7 @@ const CabsPage: React.FC = () => {
   const [cabs, setCabs] = useState<Cab[]>([]);
   const [filteredCabs, setFilteredCabs] = useState<Cab[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'recommended' | 'price-low' | 'rating-high'>('recommended');
   const [filters, setFilters] = useState({
     maxPrice: 50,
@@ -17,21 +18,34 @@ const CabsPage: React.FC = () => {
 
   useEffect(() => {
     const loadCabs = async () => {
-      const allCabs = await cabService.getAllCabs();
-      setCabs(allCabs);
-      setFilteredCabs(allCabs);
-      setLoading(false);
+      try {
+        setError(null);
+        setLoading(true);
+        const allCabs = await cabService.getAllCabs();
+        setCabs(allCabs);
+        setFilteredCabs(allCabs);
+      } catch (err) {
+        console.error('Failed to load cabs:', err);
+        setError('Failed to load available cars. Please check your connection to the server.');
+      } finally {
+        setLoading(false);
+      }
     };
     loadCabs();
   }, []);
 
   useEffect(() => {
+    if (loading || error) return;
     const applyFilters = async () => {
-      const filtered = await cabService.searchCabs(filters);
-      setFilteredCabs(filtered);
+      try {
+        const filtered = await cabService.searchCabs(filters);
+        setFilteredCabs(filtered);
+      } catch (err) {
+        console.error('Failed to apply filters:', err);
+      }
     };
     applyFilters();
-  }, [filters]);
+  }, [filters, loading, error]);
 
   const visibleCabs = useMemo(() => {
     const clone = [...filteredCabs];
@@ -60,7 +74,19 @@ const CabsPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading cars...</div>;
+    return <div className="loading-state">Loading cars...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <h2>Oops!</h2>
+        <p>{error}</p>
+        <button className="btn-retry" onClick={() => window.location.reload()}>
+          Retry Again
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -154,6 +180,3 @@ const CabsPage: React.FC = () => {
 };
 
 export default CabsPage;
-
-
-

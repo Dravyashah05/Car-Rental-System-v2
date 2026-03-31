@@ -4,9 +4,22 @@ type ApiError = {
   details?: unknown;
 };
 
+const getClerkToken = async (): Promise<string | undefined> => {
+  if (typeof window === 'undefined') return undefined;
+  const clerk = (window as typeof window & { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk;
+  if (!clerk?.session) return undefined;
+
+  try {
+    const token = await clerk.session.getToken();
+    return token ?? undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const getBaseUrl = () => {
   const raw = import.meta.env.VITE_API_BASE_URL as string | undefined;
-  if (!raw) return '';
+  if (!raw) return 'http://localhost:5000';
   return raw.endsWith('/') ? raw.slice(0, -1) : raw;
 };
 
@@ -42,9 +55,10 @@ class ApiClient {
     options: RequestInit = {},
     token?: string
   ): Promise<T> {
+    const resolvedToken = token ?? (await getClerkToken());
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
-      headers: buildHeaders(token, options.headers),
+      headers: buildHeaders(resolvedToken, options.headers),
     });
 
     if (!response.ok) {

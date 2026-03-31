@@ -1,93 +1,46 @@
-﻿import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { SignIn } from "@clerk/react";
+import { useTheme } from "../context/ThemeContext";
 import '../styles/AuthPage.css';
 
-const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    try {
-      await login(formData.email, formData.password);
-      navigate('/');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+const LoginPage = () => {
+  const { theme } = useTheme();
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1>Welcome back</h1>
-          <p>Log in to manage your bookings and rentals.</p>
-        </div>
-
-        {error && <div className="auth-alert">{error}</div>}
-
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <label className="auth-field">
-            Email
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
+    <div className="auth-page auth-page--login">
+      <div className="auth-form-container">
+        <div className="auth-shell">
+          <div className="auth-card--clerk">
+            <SignIn 
+              appearance={{
+                variables: {
+                  colorPrimary: '#ff8367',
+                  colorBackground: theme === 'dark' ? '#0c1628' : '#ffffff',
+                  colorText: theme === 'dark' ? '#f5f7ff' : '#0f172a',
+                  colorTextSecondary: theme === 'dark' ? '#a9bedf' : '#64748b',
+                  colorInputBackground: 'transparent',
+                  colorInputText: theme === 'dark' ? '#f5f7ff' : '#0f172a',
+                  borderRadius: '14px',
+                },
+                layout: {
+                  socialButtonsPlacement: 'top',
+                  showOptionalFields: false,
+                },
+                elements: {
+                  rootBox: "cl-rootBox",
+                  card: "cl-card",
+                  headerTitle: "cl-headerTitle",
+                  headerSubtitle: "cl-headerSubtitle",
+                  formButtonPrimary: "cl-formButtonPrimary",
+                  formFieldInput: "cl-formFieldInput",
+                  socialButtonsBlockButton: "cl-socialButtonsBlockButton",
+                  dividerLine: "cl-dividerLine",
+                  footerActionLink: "cl-footerActionLink",
+                }
+              }}
+              routing="path"
+              path="/login"
             />
-          </label>
-
-          <label className="auth-field">
-            Password
-            <div className="auth-password">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-              />
-              <button
-                className="auth-toggle"
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                aria-pressed={showPassword}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-          </label>
-
-          <button className="auth-button" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Log in'}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <span>New here?</span>
-          <Link to="/signup">Create an account</Link>
+          </div>
         </div>
       </div>
     </div>
@@ -95,5 +48,3 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
-
-

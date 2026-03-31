@@ -193,11 +193,12 @@ function BookingsPage() {
         ) : visibleRides.length === 0 ? (
           <p className="muted">No bookings match your search.</p>
         ) : (
-          <div className="table">
+          <div className="table bookings-table">
             <div className="table-row table-head">
               <span>Booking</span>
               <span>Customer</span>
               <span>Route</span>
+              <span>Date</span>
               <span>Status</span>
               <span>Action</span>
             </div>
@@ -205,11 +206,19 @@ function BookingsPage() {
               const statusKey = (ride.status ?? 'requested').toLowerCase()
               const route = `${ride.pickup?.address ?? 'Unknown'} -> ${ride.dropoff?.address ?? 'Unknown'}`
               const riderName = ride.rider?.name ?? ride.rider?.email ?? 'Unknown'
+              const createdLabel = ride.createdAt
+                ? new Date(ride.createdAt).toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : '--'
               return (
                 <div key={ride._id} className="table-row clickable-row" onClick={() => openRideModal(ride)}>
                   <span className="mono">{ride._id.slice(-8).toUpperCase()}</span>
                   <span>{riderName}</span>
                   <span>{route}</span>
+                  <span>{createdLabel}</span>
                   <span className={`status ${statusClassMap[statusKey] ?? 'requested'}`}>
                     {statusLabelMap[statusKey] ?? 'Requested'}
                   </span>

@@ -122,6 +122,12 @@
   color: #ccffe8;
 }
 
+.profile-alert.notice {
+  background: rgba(255, 196, 77, 0.14);
+  border: 1px solid rgba(255, 196, 77, 0.42);
+  color: #ffe5b8;
+}
+
 .profile-details,
 .profile-form {
   display: grid;

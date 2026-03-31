@@ -96,6 +96,13 @@ const getProfile = asyncHandler(async (req, res) => {
   res.json({ user: toPublicUser(req.user) });
 });
 
+const syncClerkUser = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  res.json({ user: toPublicUser(req.user) });
+});
+
 const updateProfile = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { name, email, phone, avatar, age, gender } = req.body;
@@ -163,4 +170,11 @@ const changePassword = asyncHandler(async (req, res) => {
   res.json({ message: "Password updated successfully" });
 });
 
-module.exports = { register, login, getProfile, updateProfile, changePassword };
+module.exports = {
+  register,
+  login,
+  getProfile,
+  syncClerkUser,
+  updateProfile,
+  changePassword
+};

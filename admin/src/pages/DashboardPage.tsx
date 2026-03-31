@@ -18,6 +18,24 @@ type Ride = {
   fare?: number
 }
 
+type SupportMessage = {
+  _id: string
+  subject?: string
+  message?: string
+  status?: string
+  createdAt?: string
+  user?: {
+    id?: string
+    name?: string
+    email?: string
+    phone?: string
+    role?: string
+  }
+  name?: string
+  email?: string
+  phone?: string
+}
+
 function DashboardPage() {
   type Driver = { _id: string; isActive?: boolean }
   type User = { _id: string; createdAt?: string }
@@ -28,10 +46,13 @@ function DashboardPage() {
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [supportMessages, setSupportMessages] = useState<SupportMessage[]>([])
   const [isLoadingSummary, setIsLoadingSummary] = useState(false)
   const [summaryError, setSummaryError] = useState<string | null>(null)
   const [isLoadingBookings, setIsLoadingBookings] = useState(false)
   const [bookingsError, setBookingsError] = useState<string | null>(null)
+  const [isLoadingSupport, setIsLoadingSupport] = useState(false)
+  const [supportError, setSupportError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<RideStatus | 'all'>('all')
   const [selectedBooking, setSelectedBooking] = useState<Ride | null>(null)
   const [isEditingBooking, setIsEditingBooking] = useState(false)
@@ -85,10 +106,24 @@ function DashboardPage() {
     }
   }, [statusFilter])
 
+  const loadSupport = useCallback(async () => {
+    setIsLoadingSupport(true)
+    setSupportError(null)
+    try {
+      const data = await apiFetch<SupportMessage[]>('/api/support')
+      setSupportMessages(data)
+    } catch (err) {
+      setSupportError(err instanceof Error ? err.message : 'Failed to load support messages')
+    } finally {
+      setIsLoadingSupport(false)
+    }
+  }, [])
+
   useEffect(() => {
     loadSummary()
     loadBookings()
-  }, [loadSummary, loadBookings])
+    loadSupport()
+  }, [loadSummary, loadBookings, loadSupport])
 
   const todayKey = new Date().toDateString()
   const activeRideStatuses: RideStatus[] = ['assigned', 'accepted', 'enroute']
@@ -139,14 +174,14 @@ function DashboardPage() {
     })
     const totals = days.map((day) => {
       const key = day.toDateString()
-      return completedRides.reduce((sum, ride) => {
-        if (!ride.createdAt || !ride.fare) return sum
-        return new Date(ride.createdAt).toDateString() === key ? sum + ride.fare : sum
+      return rides.reduce((sum, ride) => {
+        if (!ride.createdAt) return sum
+        return new Date(ride.createdAt).toDateString() === key ? sum + 1 : sum
       }, 0)
     })
     const max = Math.max(1, ...totals)
     return totals.map((total) => Math.round((total / max) * 100))
-  }, [completedRides])
+  }, [rides])
 
   const barLabels = useMemo(() => {
     return [...Array(7)].map((_, index) => {
@@ -215,6 +250,21 @@ function DashboardPage() {
     } finally {
       setIsUpdatingBooking(false)
     }
+  }
+
+  const formatSupportTime = (timestamp?: string) => {
+    if (!timestamp) return '--'
+    return new Date(timestamp).toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const resolveSupportUser = (message: SupportMessage) => {
+    if (message.user) return message.user
+    return { name: message.name, email: message.email, phone: message.phone }
   }
 
   return (
@@ -292,15 +342,15 @@ function DashboardPage() {
       </section>
 
       <section className="content-grid">
-        <div className="panel" data-animate data-delay="0">
-          <div className="panel-header">
-            <div>
-              <h3>Weekly revenue</h3>
-              <p>Across all zones and vehicle types</p>
+          <div className="panel" data-animate data-delay="0">
+            <div className="panel-header">
+              <div>
+                <h3>Weekly bookings</h3>
+                <p>Across all zones and vehicle types</p>
+              </div>
             </div>
-          </div>
-          <div className="chart">
-            {bars.map((value, index) => (
+            <div className="chart">
+              {bars.map((value, index) => (
               <div
                 key={`${value}-${index}`}
                 className="bar"
@@ -341,7 +391,7 @@ function DashboardPage() {
             </div>
           </div>
           {bookingsError ? <p className="muted">Error: {bookingsError}</p> : null}
-          <div className="table">
+          <div className="table recent-bookings-table">
             <div className="table-row table-head">
               <span>Booking</span>
               <span>Pickup</span>
@@ -389,9 +439,57 @@ function DashboardPage() {
         </div>
       </section>
 
+      <section className="panel support-panel" data-animate data-delay="0">
+        <div className="panel-header">
+          <div>
+            <h3>Support inbox</h3>
+            <p>{isLoadingSupport ? 'Loading messages...' : 'Latest user messages'}</p>
+          </div>
+          <button className="ghost" type="button" onClick={loadSupport} disabled={isLoadingSupport}>
+            {isLoadingSupport ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+        {supportError ? <p className="muted">Error: {supportError}</p> : null}
+        <div className="support-list">
+          {supportMessages.length === 0 && !isLoadingSupport ? (
+            <div className="support-item support-empty">
+              <div>
+                <p className="support-message">No support requests yet.</p>
+              </div>
+            </div>
+          ) : null}
+          {supportMessages.map((item) => {
+            const contact = resolveSupportUser(item)
+            const statusKey = (item.status ?? 'open').replace('_', '-')
+            const statusLabel =
+              statusKey === 'in-progress'
+                ? 'In progress'
+                : statusKey.charAt(0).toUpperCase() + statusKey.slice(1)
+
+            return (
+              <div key={item._id} className="support-item">
+                <div>
+                  <div className="support-title">
+                    <span>{item.subject ?? 'Support request'}</span>
+                    <span className={`status ${statusKey}`}>{statusLabel}</span>
+                  </div>
+                  <p className="support-message">{item.message ?? 'No message provided.'}</p>
+                  <div className="support-meta">
+                    <span>{contact?.name ?? 'Unknown user'}</span>
+                    {contact?.email ? <span>{contact.email}</span> : null}
+                    {contact?.phone ? <span>{contact.phone}</span> : null}
+                  </div>
+                </div>
+                <div className="support-time">{formatSupportTime(item.createdAt)}</div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
       {selectedBooking ? (
         <div className="modal-backdrop" onClick={closeBookingModal}>
-          <div className="modal" onClick={(event) => event.stopPropagation()}>
+          <div className="modal trip-details-modal" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <div>
                 <h3>Booking details</h3>

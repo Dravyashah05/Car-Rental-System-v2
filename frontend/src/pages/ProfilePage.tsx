@@ -26,12 +26,14 @@ const ProfilePage: React.FC = () => {
   });
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(undefined);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
+      const phoneMissing = !currentUser.phone || !currentUser.phone.trim();
       setFormData({
         name: currentUser.name,
         email: currentUser.email,
@@ -40,6 +42,12 @@ const ProfilePage: React.FC = () => {
         gender: currentUser.gender ?? '',
       });
       setAvatarPreview(currentUser.avatar);
+      if (phoneMissing) {
+        setIsEditing(true);
+        setNotice('Phone number is required to continue.');
+      } else {
+        setNotice('');
+      }
     }
   }, [currentUser]);
 
@@ -162,6 +170,7 @@ const ProfilePage: React.FC = () => {
           </div>
 
           {error && <div className="profile-alert error">{error}</div>}
+          {notice && <div className="profile-alert notice">{notice}</div>}
           {success && <div className="profile-alert success">{success}</div>}
 
           {!isEditing ? (
@@ -182,7 +191,7 @@ const ProfilePage: React.FC = () => {
                 <span className="profile-label">
                   <FaPhoneAlt /> Phone
                 </span>
-                <span className="profile-value">{currentUser.phone}</span>
+                <span className="profile-value">{currentUser.phone || 'Not set'}</span>
               </div>
               <div className="profile-detail">
                 <span className="profile-label">
@@ -288,6 +297,12 @@ const ProfilePage: React.FC = () => {
                   className="profile-secondary"
                   type="button"
                   onClick={() => {
+                    const phoneMissing = !currentUser.phone || !currentUser.phone.trim();
+                    if (phoneMissing) {
+                      setIsEditing(true);
+                      setNotice('Phone number is required to continue.');
+                      return;
+                    }
                     setIsEditing(false);
                     setError('');
                     setSuccess('');
@@ -327,7 +342,7 @@ const ProfilePage: React.FC = () => {
                 Settings
                 <span>Preferences and privacy</span>
               </Link>
-              <Link to="/" className="profile-action">
+              <Link to="/support" className="profile-action">
                 <span className="profile-action__icon"><FaLifeRing /></span>
                 Support center
                 <span>Get help fast</span>

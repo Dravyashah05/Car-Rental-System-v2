@@ -1,128 +1,150 @@
 .auth-page {
-  min-height: calc(100vh - 140px);
-  display: grid;
-  place-items: center;
-  padding: 46px 20px 66px;
-  background: var(--hero-bg);
-}
-
-.auth-card {
-  width: min(520px, 100%);
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 22px;
-  padding: 30px;
-  box-shadow: var(--shadow-strong);
-}
-
-.auth-header h1 {
-  font-size: clamp(1.8rem, 3vw, 2.35rem);
-  margin-bottom: 8px;
-  color: var(--color-text);
-}
-
-.auth-header p {
-  color: var(--color-text-soft);
-  margin-bottom: 22px;
-}
-
-.auth-alert {
-  margin-bottom: 16px;
-  border-radius: 12px;
-  padding: 11px 12px;
-  color: #ffffff;
-  background: rgba(255, 109, 136, 0.2);
-  border: 1px solid var(--color-danger);
-}
-
-.auth-form {
-  display: grid;
-  gap: 14px;
-}
-
-.auth-field {
-  display: grid;
-  gap: 7px;
-  color: var(--color-text-soft);
-  font-size: 0.92rem;
-}
-
-.auth-field input {
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  color: var(--color-text);
-  padding: 11px 12px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.auth-field input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 131, 103, 0.16);
-}
-
-.auth-password {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.auth-password input {
-  width: 100%;
-  padding-right: 68px;
-}
-
-.auth-toggle {
-  position: absolute;
-  right: 9px;
-  border: none;
-  background: transparent;
-  color: var(--color-accent);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.auth-button {
-  margin-top: 8px;
-  border: none;
-  border-radius: 12px;
-  padding: 12px;
-  background: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
-  color: #2a1b14;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.auth-button:hover {
-  transform: translateY(-2px);
-}
-
-.auth-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  margin-top: 20px;
+  min-height: 100%;
+  flex-grow: 1;
   display: flex;
   justify-content: center;
-  gap: 8px;
-  color: var(--color-text-soft);
+  align-items: center;
+  /* Premium subtle background highlight that respects theme colors */
+  background: radial-gradient(circle at top left, var(--color-surface), transparent 40%),
+    radial-gradient(circle at bottom right, var(--color-surface), transparent 40%),
+    var(--color-bg);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
 }
 
-.auth-footer a {
-  color: var(--color-accent);
-  font-weight: 700;
+.auth-page--login {
+  flex-direction: column;
 }
 
-@media (max-width: 640px) {
-  .auth-page {
-    padding: 24px 12px 54px;
+.auth-form-container {
+  width: 100%;
+  max-width: 480px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 5;
+}
+
+.auth-shell {
+  width: 100%;
+  animation: auth-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom styles for Clerk classes (Using !important to maintain brand consistence) */
+.auth-card--clerk .cl-rootBox {
+  width: 100%;
+}
+
+.auth-card--clerk .cl-card {
+  background: var(--color-surface-strong) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--color-border) !important;
+  border-radius: 28px !important;
+  box-shadow: var(--shadow-strong) !important;
+  padding: 32px !important;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.auth-card--clerk .cl-headerTitle {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 800 !important;
+  color: var(--color-text) !important;
+  letter-spacing: -0.01em !important;
+}
+
+.auth-card--clerk .cl-headerSubtitle {
+  color: var(--color-text-soft) !important;
+  font-weight: 500 !important;
+}
+
+.auth-card--clerk .cl-formButtonPrimary {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-2)) !important;
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 8px 16px rgba(255, 131, 103, 0.15) !important;
+  border: none !important;
+}
+
+.auth-card--clerk .cl-formButtonPrimary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 24px rgba(255, 131, 103, 0.25) !important;
+  filter: brightness(1.08);
+}
+
+.auth-card--clerk .cl-formFieldInput {
+  background: var(--color-surface) !important;
+  border: 1.5px solid var(--color-border) !important;
+  border-radius: 14px !important;
+  color: var(--color-text) !important;
+  transition: all 0.2s ease !important;
+}
+
+.auth-card--clerk .cl-formFieldInput:focus {
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface-strong) !important;
+  box-shadow: 0 0 0 4px rgba(255, 131, 103, 0.1) !important;
+}
+
+.auth-card--clerk .cl-socialButtonsBlockButton {
+  background: var(--color-surface) !important;
+  border: 1.5px solid var(--color-border) !important;
+  border-radius: 14px !important;
+  color: var(--color-text) !important;
+  transition: all 0.2s ease !important;
+}
+
+.auth-card--clerk .cl-socialButtonsBlockButton:hover {
+  background: var(--color-surface-strong) !important;
+  border-color: var(--color-text-soft) !important;
+}
+
+.auth-card--clerk .cl-dividerLine {
+  background: var(--color-border) !important;
+  opacity: 0.5;
+}
+
+.auth-card--clerk .cl-dividerText {
+  color: var(--color-text-soft) !important;
+  font-weight: 600 !important;
+}
+
+.auth-card--clerk .cl-footerActionLink {
+  color: var(--color-accent) !important;
+  font-weight: 700 !important;
+  transition: color 0.2s ease !important;
+}
+
+.auth-card--clerk .cl-footerActionLink:hover {
+  color: var(--color-accent-2) !important;
+}
+
+/* Base Clerk component adjustments when not using our specific card override */
+[data-theme='light'] .auth-card--clerk .cl-formFieldInputText {
+    color: #1a1a1a !important;
+}
+
+@keyframes auth-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .auth-card {
-    padding: 22px;
+/* Responsive */
+@media (max-width: 640px) {
+  .auth-form-container {
+    padding: 0;
+  }
+  .auth-card--clerk .cl-card {
+    padding: 24px 20px !important;
+    border-radius: 24px !important;
   }
 }

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   FaCalendarAlt,
@@ -11,9 +11,18 @@ import {
   FaStar,
 } from 'react-icons/fa';
 import MapComponent from '../components/MapComponent';
+import MapPicker from '../components/MapPicker';
+import NearbyCars from '../components/NearbyCars';
 import LocationPickerSimple from '../components/LocationPickerSimple';
 import { cabService } from '../services/cabService';
 import type { Cab } from '../types';
+import {
+  formatCoords,
+  getDistanceKm,
+  getNearestLocationName,
+  resolveLocationInput,
+  type GeoPoint,
+} from '../utils/geo';
 import '../styles/BookingPage.css';
 
 const BookingPage: React.FC = () => {
@@ -22,6 +31,10 @@ const BookingPage: React.FC = () => {
 
   const [cab, setCab] = useState<Cab | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeMapTarget, setActiveMapTarget] = useState<'pickup' | 'dropoff'>('pickup');
+  const [isLocating, setIsLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [pickupHint, setPickupHint] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     pickupLocation: '',
@@ -52,6 +65,62 @@ const BookingPage: React.FC = () => {
       formData.estimatedDuration
     );
   }, [cab, formData.estimatedDistance, formData.estimatedDuration]);
+
+  const pickupPoint = useMemo(
+    () => resolveLocationInput(formData.pickupLocation),
+    [formData.pickupLocation]
+  );
+
+  const dropoffPoint = useMemo(
+    () => resolveLocationInput(formData.dropoffLocation),
+    [formData.dropoffLocation]
+  );
+
+  useEffect(() => {
+    if (pickupPoint && dropoffPoint) {
+      const dist = getDistanceKm(pickupPoint, dropoffPoint);
+      const roundedDist = Math.max(1, Math.round(dist));
+      // Assume 2.5 mins per km as a balanced city/highway average
+      const duration = Math.round(roundedDist * 2.5);
+
+      setFormData((prev) => ({
+        ...prev,
+        estimatedDistance: roundedDist,
+        estimatedDuration: duration,
+      }));
+    }
+  }, [pickupPoint, dropoffPoint]);
+
+  const handleMapSelect = useCallback((type: 'pickup' | 'dropoff', point: GeoPoint) => {
+    const label = point.name ?? formatCoords(point.lat, point.lng);
+    setFormData((prev) => ({
+      ...prev,
+      [type === 'pickup' ? 'pickupLocation' : 'dropoffLocation']: label,
+    }));
+  }, []);
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoError('Geolocation is not supported in this browser.');
+      return;
+    }
+    setIsLocating(true);
+    setGeoError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const coordsLabel = formatCoords(latitude, longitude);
+        setFormData((prev) => ({ ...prev, pickupLocation: coordsLabel }));
+        setPickupHint(`Near ${getNearestLocationName(latitude, longitude)}`);
+        setIsLocating(false);
+      },
+      (error) => {
+        setGeoError(error.message || 'Unable to fetch your location.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -115,6 +184,47 @@ const BookingPage: React.FC = () => {
               </div>
             )}
 
+            <div className="map-select panel-card">
+              <div className="map-select-header">
+                <div>
+                  <h3>Choose on map</h3>
+                  <p>Click the map to set the active point.</p>
+                </div>
+                <div className="map-toggle">
+                  <button
+                    type="button"
+                    className={activeMapTarget === 'pickup' ? 'active' : ''}
+                    onClick={() => setActiveMapTarget('pickup')}
+                  >
+                    Pickup
+                  </button>
+                  <button
+                    type="button"
+                    className={activeMapTarget === 'dropoff' ? 'active' : ''}
+                    onClick={() => setActiveMapTarget('dropoff')}
+                  >
+                    Dropoff
+                  </button>
+                </div>
+              </div>
+              <MapPicker
+                pickup={pickupPoint}
+                dropoff={dropoffPoint}
+                activeType={activeMapTarget}
+                onSelect={handleMapSelect}
+              />
+              <div className="map-select-footer">
+                <div>
+                  <span className="map-label">Pickup</span>
+                  <strong>{formData.pickupLocation || 'Not set'}</strong>
+                </div>
+                <div>
+                  <span className="map-label">Dropoff</span>
+                  <strong>{formData.dropoffLocation || 'Not set'}</strong>
+                </div>
+              </div>
+            </div>
+
             <div className="cab-summary panel-card">
               <div className="cab-media">
                 <img src={cab.image} alt={cab.model} className="cab-image" />
@@ -155,6 +265,8 @@ const BookingPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <NearbyCars pickupLocation={formData.pickupLocation} currentCabId={cab.id} />
           </div>
 
           <form className="booking-form panel-card" onSubmit={handleSubmit}>
@@ -167,18 +279,34 @@ const BookingPage: React.FC = () => {
               <strong>Rs. {totalPrice.toFixed(2)}</strong>
             </div>
 
-            <div className="form-group">
-              <label>
-                <FaMapMarkerAlt /> Pickup Location
-              </label>
+            <div className="form-group full-width">
+              <div className="field-head">
+                <label>
+                  <FaMapMarkerAlt /> Pickup Location
+                </label>
+                <button
+                  type="button"
+                  className="geo-btn"
+                  onClick={handleUseMyLocation}
+                  disabled={isLocating}
+                >
+                  {isLocating ? 'Locating...' : 'Use my location'}
+                </button>
+              </div>
               <LocationPickerSimple
                 value={formData.pickupLocation}
-                onChange={(val: string) => setFormData((prev) => ({ ...prev, pickupLocation: val }))}
+                onChange={(val: string) => {
+                  setFormData((prev) => ({ ...prev, pickupLocation: val }));
+                  setGeoError(null);
+                  setPickupHint(null);
+                }}
                 placeholder="Enter pickup location"
               />
+              {pickupHint ? <span className="field-hint">{pickupHint}</span> : null}
+              {geoError ? <span className="field-hint error">{geoError}</span> : null}
             </div>
 
-            <div className="form-group">
+            <div className="form-group full-width">
               <label>
                 <FaMapMarkerAlt /> Dropoff Location
               </label>

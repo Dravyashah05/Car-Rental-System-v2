@@ -1,111 +1,91 @@
-import React, { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import '../styles/Map.css';
+import React, { useEffect, useRef } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { resolveLocationInput } from '../utils/geo'
+import '../styles/Map.css'
 
 interface MapProps {
-  pickupLocation?: string | { lat: number; lng: number; name: string };
-  dropoffLocation?: string | { lat: number; lng: number; name: string };
-  height?: string;
-  showRoute?: boolean;
+  pickupLocation?: string | { lat: number; lng: number; name: string }
+  dropoffLocation?: string | { lat: number; lng: number; name: string }
+  height?: string
+  showRoute?: boolean
 }
 
-// Sample location coordinates for demo
-const locationCoordinates: Record<string, { lat: number; lng: number }> = {
-  'New York': { lat: 40.7128, lng: -74.006 },
-  'Times Square': { lat: 40.758, lng: -73.9855 },
-  'Central Park': { lat: 40.7829, lng: -73.9654 },
-  'Brooklyn': { lat: 40.6501, lng: -73.9496 },
-  'Queens': { lat: 40.7282, lng: -73.7949 },
-  'Manhattan': { lat: 40.7831, lng: -73.9712 },
-  'Midtown': { lat: 40.7555, lng: -73.9776 },
-  'Downtown': { lat: 40.7061, lng: -74.0088 },
-};
-
-const getLocationCoordinates = (location: string | { lat: number; lng: number; name: string }) => {
-  if (typeof location === 'string') {
-    const key = Object.keys(locationCoordinates).find(k => 
-      k.toLowerCase() === location.toLowerCase() || 
-      location.toLowerCase().includes(k.toLowerCase())
-    );
-    if (key) {
-      return { ...locationCoordinates[key], name: location };
-    }
-    // Return approximate random location if not found
-    return {
-      lat: 40.7128 + (Math.random() - 0.5) * 0.2,
-      lng: -74.006 + (Math.random() - 0.5) * 0.2,
-      name: location,
-    };
-  }
-  return location;
-};
-
 const MapComponent: React.FC<MapProps> = ({
-  pickupLocation = 'New York',
-  dropoffLocation = 'Times Square',
+  pickupLocation = 'Delhi',
+  dropoffLocation = 'Mumbai',
   height = '400px',
   showRoute = true,
 }) => {
-  const mapRef = useRef<L.Map | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || mapRef.current) return
 
-    const pickup = getLocationCoordinates(pickupLocation);
-    const dropoff = getLocationCoordinates(dropoffLocation);
+    const seed =
+      resolveLocationInput(pickupLocation) ?? resolveLocationInput(dropoffLocation)
+    const center = seed ?? { lat: 20.5937, lng: 78.9629, name: 'India' }
 
-    // Initialize map
-    if (!mapRef.current) {
-      mapRef.current = L.map(containerRef.current).setView(
-        [pickup.lat, pickup.lng],
-        13
-      );
+    mapRef.current = L.map(containerRef.current).setView([center.lat, center.lng], 5)
 
-      // Add OpenStreetMap tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(mapRef.current);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '(c) OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(mapRef.current)
+
+    mapRef.current.invalidateSize()
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
     }
+  }, [pickupLocation, dropoffLocation])
 
-    // Clear existing markers and polylines
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    const pickup = resolveLocationInput(pickupLocation)
+    const dropoff = resolveLocationInput(dropoffLocation)
+
+    if (!pickup || !dropoff) return
+
     mapRef.current.eachLayer((layer: L.Layer) => {
       if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-        mapRef.current?.removeLayer(layer);
+        mapRef.current?.removeLayer(layer)
       }
-    });
+    })
 
-    // Add pickup marker (green)
     const pickupIcon = L.divIcon({
       className: 'custom-marker pickup-marker',
-      html: `<div class="marker-inner">📍</div>`,
+      html: `<div class="marker-inner">PU</div>`,
       iconSize: [40, 40],
       iconAnchor: [20, 40],
       popupAnchor: [0, -40],
-    });
+    })
 
     L.marker([pickup.lat, pickup.lng], { icon: pickupIcon })
-      .bindPopup(`<div class="marker-popup"><strong>Pickup</strong><br>${pickup.name}</div>`)
-      .addTo(mapRef.current!)
-      .openPopup();
+      .bindPopup(
+        `<div class="marker-popup"><strong>Pickup</strong><br>${pickup.name ?? 'Pickup'}</div>`
+      )
+      .addTo(mapRef.current)
 
-    // Add dropoff marker (red)
     const dropoffIcon = L.divIcon({
       className: 'custom-marker dropoff-marker',
-      html: `<div class="marker-inner">📌</div>`,
+      html: `<div class="marker-inner">DO</div>`,
       iconSize: [40, 40],
       iconAnchor: [20, 40],
       popupAnchor: [0, -40],
-    });
+    })
 
     L.marker([dropoff.lat, dropoff.lng], { icon: dropoffIcon })
-      .bindPopup(`<div class="marker-popup"><strong>Dropoff</strong><br>${dropoff.name}</div>`)
-      .addTo(mapRef.current!)
-      .openPopup();
+      .bindPopup(
+        `<div class="marker-popup"><strong>Dropoff</strong><br>${dropoff.name ?? 'Dropoff'}</div>`
+      )
+      .addTo(mapRef.current)
 
-    // Draw route line if enabled
     if (showRoute) {
       L.polyline(
         [
@@ -118,29 +98,21 @@ const MapComponent: React.FC<MapProps> = ({
           opacity: 0.7,
           dashArray: '5, 5',
         }
-      ).addTo(mapRef.current!);
+      ).addTo(mapRef.current)
     }
 
-    // Fit bounds to show both markers
     const group = new L.FeatureGroup([
       L.marker([pickup.lat, pickup.lng]),
       L.marker([dropoff.lat, dropoff.lng]),
-    ]);
-    mapRef.current?.fitBounds(group.getBounds().pad(0.1));
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [pickupLocation, dropoffLocation, showRoute]);
+    ])
+    mapRef.current.fitBounds(group.getBounds().pad(0.1))
+  }, [pickupLocation, dropoffLocation, showRoute])
 
   return (
     <div className="map-container" style={{ height }}>
       <div ref={containerRef} className="map-wrapper" />
     </div>
-  );
-};
+  )
+}
 
-export default MapComponent;
+export default MapComponent

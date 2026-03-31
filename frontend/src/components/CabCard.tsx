@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaStar, FaChair, FaGasPump, FaCalendarAlt } from 'react-icons/fa';
+import { FaStar, FaChair, FaGasPump } from 'react-icons/fa';
 import type { Cab } from '../types';
 import '../styles/CabCard.css';
 
@@ -31,21 +31,24 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
             <span>No image</span>
           </div>
         )}
-        <div className="cab-image-overlay" />
-        <div className="cab-badges">
-          <span className={`status ${cab.available ? 'available' : 'unavailable'}`}>
-            {cab.available ? 'Available' : 'Unavailable'}
-          </span>
-          <span className="badge rating">
-            <FaStar /> {cab.rating}
-          </span>
-          <span className="badge price">Rs. {cab.pricePerKm}/km</span>
-        </div>
+        <span className={`availability-tag ${cab.available ? 'available' : 'unavailable'}`}>
+          {cab.available ? 'Available' : 'Unavailable'}
+        </span>
       </div>
       <div className="cab-details">
         <div className="cab-title-row">
-          <h3>{`${cab.make} ${cab.model}`}</h3>
-          <span className="year-pill">{cab.year}</span>
+          <div className="cab-title-block">
+            <h3>{`${cab.make} ${cab.model}`}</h3>
+            <div className="cab-subline">
+              <span className="cab-year">{cab.year}</span>
+              <span className="cab-dot">•</span>
+              <span className="cab-rating-inline">
+                <FaStar /> {cab.rating}
+              </span>
+              <span className="cab-reviews">({cab.reviews} reviews)</span>
+            </div>
+          </div>
+          <span className="price-chip">Rs. {cab.pricePerKm}/km</span>
         </div>
         <div className="cab-specs">
           <span className="spec">
@@ -54,27 +57,6 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
           <span className="spec">
             <FaGasPump /> {cab.fuelType}
           </span>
-          <span className="spec">
-            <FaCalendarAlt /> {cab.year}
-          </span>
-        </div>
-
-        <div className="cab-rating">
-          <span className="stars">
-            <FaStar /> {cab.rating}
-          </span>
-          <span className="reviews">({cab.reviews} reviews)</span>
-        </div>
-
-        <div className="cab-pricing">
-          <div className="price-item">
-            <span className="label">Per km:</span>
-            <span className="price">Rs. {cab.pricePerKm}</span>
-          </div>
-          <div className="price-item">
-            <span className="label">Per hour:</span>
-            <span className="price">Rs. {cab.pricePerHour}</span>
-          </div>
         </div>
 
         <button

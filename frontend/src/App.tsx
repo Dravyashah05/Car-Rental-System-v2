@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import { BookingProvider } from './context/BookingContext';
@@ -14,6 +14,8 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import SupportPage from './pages/SupportPage';
+import SsoCallbackPage from './pages/SsoCallbackPage';
 import ScrollReveal from './components/ScrollReveal';
 import './styles/GlobalLoader.css';
 import './styles/animations.css';
@@ -42,12 +44,36 @@ function RouteChangeLoader() {
   );
 }
 
+function PhoneRequirementGuard() {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const needsPhone = !currentUser.phone || !currentUser.phone.trim();
+    if (!needsPhone) return;
+    const path = location.pathname;
+    if (path === '/profile') return;
+    if (path.startsWith('/login') || path.startsWith('/signup')) return;
+
+    navigate('/profile', { replace: true, state: { requirePhone: true, from: location } });
+  }, [currentUser, location, navigate]);
+
+  return null;
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth();
   const location = useLocation();
 
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  const needsPhone = !currentUser.phone || !currentUser.phone.trim();
+  if (needsPhone && location.pathname !== '/profile') {
+    return <Navigate to="/profile" state={{ requirePhone: true, from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -66,6 +92,7 @@ function App() {
           >
             <ScrollReveal />
             <RouteChangeLoader />
+            <PhoneRequirementGuard />
             <Navbar />
             <main style={{ minHeight: 'calc(100vh - 140px)' }} className="app-main">
               <Routes>
@@ -73,6 +100,9 @@ function App() {
                 <Route path="/cabs" element={<CabsPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/sso-callback" element={<SsoCallbackPage />} />
+                <Route path="/login/sso-callback" element={<SsoCallbackPage />} />
+                <Route path="/signup/sso-callback" element={<SsoCallbackPage />} />
                 
                 <Route
                   path="/book/:cabId"
@@ -103,6 +133,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/support"
+                  element={
+                    <ProtectedRoute>
+                      <SupportPage />
                     </ProtectedRoute>
                   }
                 />
