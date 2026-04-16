@@ -503,8 +503,8 @@ function Layout({ onLogout }: { onLogout: () => void }) {
           <div className="brand">
             <div className="brand-mark">CR</div>
             <div>
-              <p className="brand-title">CarRental Admin</p>
-              <p className="brand-subtitle">Car Rental System</p>
+              <p className="brand-title">CityRide Admin</p>
+              <p className="brand-subtitle">CityRide Platform</p>
             </div>
           </div>
           <button

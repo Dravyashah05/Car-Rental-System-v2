@@ -729,7 +729,7 @@ function OwnersPage() {
                   onClick={handleDeleteDriver}
                   disabled={isEditSubmitting}
                 >
-                  Delete owner
+                                 Delete owner
                 </button>
                 <button className="ghost" type="button" onClick={closeEditModal}>
                   Cancel

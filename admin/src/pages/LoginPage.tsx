@@ -13,8 +13,8 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
         <div className="login-brand">
           <div className="brand-mark">CR</div>
           <div>
-            <p className="brand-title">CarRental Admin</p>
-            <p className="brand-subtitle">Car Rental System</p>
+            <p className="brand-title">CityRide Admin</p>
+            <p className="brand-subtitle">CityRide Platform</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
             <span>Work email</span>
             <input
               type="email"
-              placeholder="admin@carrental.com"
+              placeholder="admin@cityride.com"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}

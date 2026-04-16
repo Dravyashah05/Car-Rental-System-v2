@@ -6,11 +6,32 @@ type ApiError = {
 
 const getClerkToken = async (): Promise<string | undefined> => {
   if (typeof window === 'undefined') return undefined;
-  const clerk = (window as typeof window & { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk;
-  if (!clerk?.session) return undefined;
+
+  // Clerk injects a global `Clerk` object in the browser. Guard hard to avoid
+  // blowing up when the script has not been initialised yet (e.g. during the
+  // first render).
+  const clerk = (window as typeof window & {
+    Clerk?: { session?: { getToken: (opts?: { template?: string }) => Promise<string | null> } };
+  }).Clerk;
+
+  const session = clerk?.session;
+  if (!session) return undefined;
+
+  // Newer Clerk setups often mint JWTs only when a template name is provided.
+  // Try the common templates first, then fall back to the default call.
+  const templates = ['integration_fallback', 'default'];
+
+  for (const template of templates) {
+    try {
+      const token = await session.getToken({ template });
+      if (token) return token;
+    } catch {
+      // keep looping through templates
+    }
+  }
 
   try {
-    const token = await clerk.session.getToken();
+    const token = await session.getToken();
     return token ?? undefined;
   } catch {
     return undefined;
