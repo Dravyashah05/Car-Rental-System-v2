@@ -55,7 +55,7 @@ function UsersPage() {
   const stats = useMemo(() => {
     const total = users.length
     const admins = users.filter((user) => user.role === 'admin').length
-    const owners = users.filter((user) => user.role === 'owner' || user.role === 'driver').length
+    const owners = users.filter((user) => user.role === 'owner').length
     const riders = users.filter((user) => user.role === 'user').length
     return { total, admins, owners, riders }
   }, [users])

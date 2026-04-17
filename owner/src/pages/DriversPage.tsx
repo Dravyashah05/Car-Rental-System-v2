@@ -346,7 +346,7 @@ function DriversPage() {
           {drivers.length > 0 && visibleDrivers.length === 0 ? (
             <p className="muted">No drivers match your search.</p>
           ) : null}
-          {visibleDrivers.map((driver, index) => {
+          {visibleDrivers.map((driver) => {
             const label = driver.user?.name || driver.user?.email || `Driver ${driver._id.slice(-6)}`
             const driverInitials = getInitials(driver.user?.name, driver.user?.email)
             return (

@@ -1,6 +1,11 @@
 ﻿import { useState } from 'react'
 import { apiFetch, setAuthToken } from '../services/api'
 
+type LoginResponse = {
+  user: { role?: string }
+  token: string
+}
+
 function LoginPage({ onSignIn }: { onSignIn: () => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,7 +35,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
             setError('')
             setIsSubmitting(true)
             try {
-              const data = await apiFetch <LoginResponse> ('/api/auth/login', {
+              const data = await apiFetch<LoginResponse>('/api/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
               })

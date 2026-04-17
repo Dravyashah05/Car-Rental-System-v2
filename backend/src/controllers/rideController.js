@@ -2,7 +2,6 @@ const Ride = require("../models/Ride");
 const Driver = require("../models/Driver");
 const Vehicle = require("../models/Vehicle");
 const asyncHandler = require("../middleware/asyncHandler");
-const { sendBookingConfirmation } = require("../services/mailService");
 
 const createRide = asyncHandler(async (req, res) => {
   const { cabId, pickup, dropoff, distanceKm, fare } = req.body;
@@ -105,12 +104,6 @@ const updateStatus = asyncHandler(async (req, res) => {
   }
   ride.status = status;
   await ride.save();
-
-  if (status === "accepted" && ride.rider?.email) {
-    sendBookingConfirmation(ride.rider.email, ride).catch(err => {
-      console.error("Failed to send booking confirmation email:", err);
-    });
-  }
 
   res.json(ride);
 });

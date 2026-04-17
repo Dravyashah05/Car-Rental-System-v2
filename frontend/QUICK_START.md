@@ -165,11 +165,10 @@ const mockCabs: Cab[] = [
 1. **Add Backend API** - Connect to real database
 2. **Authentication** - Implement user login/signup
 3. **Payment Integration** - Add payment gateway (Stripe, Razorpay, etc.)
-4. **Email Notifications** - Send booking confirmations
-5. **SMS Integration** - Send ride updates via SMS
-6. **Real GPS Tracking** - Show live cab location
-7. **Reviews System** - Let users rate drivers
-8. **Admin Dashboard** - Manage cabs and drivers
+4. **SMS Integration** - Send ride updates via SMS
+5. **Real GPS Tracking** - Show live cab location
+6. **Reviews System** - Let users rate drivers
+7. **Admin Dashboard** - Manage cabs and drivers
 
 ## 📞 Support
 

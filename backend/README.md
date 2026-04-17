@@ -3,7 +3,7 @@
 This is a simple, production-ready starter API for a cab booking website.
 
 ## Quick Start
-1. Create `.env` from `.env.example` and update values.
+1. Create/update `backend/.env` and set required values (at minimum `MONGO_URI`).
 2. Install dependencies and run:
 
 ```bash
@@ -25,3 +25,12 @@ npm run dev
 ## Notes
 - MongoDB is required.
 - All non-auth routes require `Authorization: Bearer <token>`.
+
+## Troubleshooting
+
+### `querySrv ECONNREFUSED _mongodb._tcp...`
+This usually means Node is trying to do the MongoDB SRV DNS lookup via a non-working local DNS server (commonly `127.0.0.1`).
+
+- Fix your system DNS (or start your local DNS service), then restart the backend.
+- Or set `DNS_SERVERS` in `backend/.env` (use a working resolver, e.g. your adapter DNS from `ipconfig /all`, or `1.1.1.1,8.8.8.8`), then restart.
+- Or switch `MONGO_URI` to a non-SRV `mongodb://...` connection string.
