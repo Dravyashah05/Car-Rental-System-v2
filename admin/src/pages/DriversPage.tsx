@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useLocation } from 'react-router-dom'
 import { apiFetch } from '../services/api'
+import PasswordInput from '../components/PasswordInput'
 
 type Driver = {
   _id: string
@@ -458,8 +459,7 @@ function OwnersPage() {
               </label>
               <label className="field">
                 <span>Temporary password</span>
-                <input
-                  type="password"
+                <PasswordInput
                   placeholder="Create a password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}

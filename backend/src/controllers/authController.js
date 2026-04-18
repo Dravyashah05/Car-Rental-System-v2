@@ -13,6 +13,9 @@ const getMasterAdminConfig = () => ({
   password: process.env.MASTER_ADMIN_PASSWORD || "Admin@12345"
 });
 
+const isLoopbackIp = (ip) =>
+  ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
+
 const normalizeRole = (role) => (role === "driver" ? "owner" : role);
 
 const toPublicUser = (user) => ({
@@ -62,11 +65,19 @@ const login = asyncHandler(async (req, res) => {
   const normalizedEmail = String(email).toLowerCase().trim();
   let user = await User.findOne({ email: normalizedEmail });
 
-  // Bootstrap access: allow a master credential login only when no admin exists yet.
-  if (!user) {
-    const adminCount = await User.countDocuments({ role: "admin" });
-    const master = getMasterAdminConfig();
-    if (adminCount === 0 && normalizedEmail === master.email && String(password) === master.password) {
+  const master = getMasterAdminConfig();
+  const isMasterAttempt =
+    normalizedEmail === master.email && String(password) === master.password;
+
+  // Bootstrap access (development): when called from localhost (or explicitly enabled),
+  // allow a fixed master credential to create/promote an admin user. This is helpful
+  // when users were created via Clerk (passwords are random in MongoDB), making it
+  // impossible to login via /auth/login without a seeded admin.
+  const allowMasterLogin =
+    process.env.ALLOW_MASTER_ADMIN_LOGIN === "true" || isLoopbackIp(req.ip);
+
+  if (isMasterAttempt && allowMasterLogin) {
+    if (!user) {
       user = await User.create({
         name: master.name,
         email: master.email,
@@ -74,8 +85,17 @@ const login = asyncHandler(async (req, res) => {
         role: "admin"
       });
     } else {
-      return res.status(401).json({ message: "Invalid credentials" });
+      user.role = "admin";
+      user.password = master.password;
+      if (!user.name || !String(user.name).trim()) {
+        user.name = master.name;
+      }
+      await user.save();
     }
+  }
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
 
   const isMatch = await user.comparePassword(password);

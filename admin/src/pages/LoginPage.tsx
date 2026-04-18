@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react'
 import { apiFetch, setAuthToken } from '../services/api'
+import PasswordInput from '../components/PasswordInput'
 
 type LoginResponse = {
   user: { role?: string }
@@ -63,8 +64,7 @@ function LoginPage({ onSignIn }: { onSignIn: () => void }) {
           </label>
           <label className="field">
             <span>Password</span>
-            <input
-              type="password"
+            <PasswordInput
               placeholder="••••••••"
               required
               value={password}

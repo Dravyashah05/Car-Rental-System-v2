@@ -4,6 +4,23 @@ type ApiError = {
   details?: unknown;
 };
 
+type TokenProvider = () => Promise<string | undefined>;
+
+let tokenProvider: TokenProvider | undefined;
+
+export const setApiTokenProvider = (provider: TokenProvider | undefined) => {
+  tokenProvider = provider;
+};
+
+const getProvidedToken = async (): Promise<string | undefined> => {
+  if (!tokenProvider) return undefined;
+  try {
+    return await tokenProvider();
+  } catch {
+    return undefined;
+  }
+};
+
 const getClerkToken = async (): Promise<string | undefined> => {
   if (typeof window === 'undefined') return undefined;
 
@@ -17,8 +34,14 @@ const getClerkToken = async (): Promise<string | undefined> => {
   const session = clerk?.session;
   if (!session) return undefined;
 
-  // Newer Clerk setups often mint JWTs only when a template name is provided.
-  // Try the common templates first, then fall back to the default call.
+  try {
+    const token = await session.getToken();
+    if (token) return token;
+  } catch {
+    // Ignore token retrieval errors
+  }
+
+  // Some Clerk setups only mint JWTs when a template name is provided.
   const templates = ['integration_fallback', 'default'];
 
   for (const template of templates) {
@@ -30,12 +53,7 @@ const getClerkToken = async (): Promise<string | undefined> => {
     }
   }
 
-  try {
-    const token = await session.getToken();
-    return token ?? undefined;
-  } catch {
-    return undefined;
-  }
+  return undefined;
 };
 
 const getBaseUrl = () => {
@@ -76,7 +94,7 @@ class ApiClient {
     options: RequestInit = {},
     token?: string
   ): Promise<T> {
-    const resolvedToken = token ?? (await getClerkToken());
+    const resolvedToken = token ?? (await getProvidedToken()) ?? (await getClerkToken());
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: buildHeaders(resolvedToken, options.headers),

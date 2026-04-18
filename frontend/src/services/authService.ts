@@ -46,8 +46,8 @@ const clearAuth = () => {
 const hasToken = () => Boolean(localStorage.getItem(TOKEN_KEY));
 
 export const authService = {
-  syncClerkUser: async (): Promise<AuthUser> => {
-    const response = await apiClient.get<AuthResponse>('/api/auth/sync');
+  syncClerkUser: async (token?: string): Promise<AuthUser> => {
+    const response = await apiClient.get<AuthResponse>('/api/auth/sync', token);
     const { user } = normalizeAuthResponse(response);
     return user;
   },

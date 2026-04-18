@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useClerk, useUser } from '@clerk/react';
+import { useAuth as useClerkAuth, useClerk, useUser } from '@clerk/react';
 import { authService, type AuthUser } from '../services/authService';
+import { setApiTokenProvider } from '../services/api';
 
 type AuthContextValue = {
   currentUser: AuthUser | null;
@@ -28,15 +29,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
   const clerk = useClerk();
+  const { getToken, isLoaded: isAuthLoaded } = useClerkAuth();
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isAuthLoaded) return;
+
+    if (!isSignedIn) {
+      setApiTokenProvider(undefined);
+      return;
+    }
+
+    setApiTokenProvider(async () => {
+      try {
+        const token = await getToken();
+        if (token) return token;
+      } catch {
+        // Ignore token retrieval errors
+      }
+
+      const templates = ['integration_fallback', 'default'];
+      for (const template of templates) {
+        try {
+          const token = await getToken({ template });
+          if (token) return token;
+        } catch {
+          // keep looping through templates
+        }
+      }
+
+      return undefined;
+    });
+
+    return () => {
+      setApiTokenProvider(undefined);
+    };
+  }, [getToken, isAuthLoaded, isSignedIn]);
+
+  useEffect(() => {
+    if (!isLoaded || !isAuthLoaded) return;
     let isActive = true;
 
     const syncClerk = async () => {
       if (isSignedIn && clerkUser) {
         try {
-          const synced = await authService.syncClerkUser();
+          const resolvedToken = await (async () => {
+            try {
+              const token = await getToken();
+              if (token) return token;
+            } catch {
+              // Ignore token retrieval errors
+            }
+
+            const templates = ['integration_fallback', 'default'];
+            for (const template of templates) {
+              try {
+                const token = await getToken({ template });
+                if (token) return token;
+              } catch {
+                // keep looping through templates
+              }
+            }
+
+            return undefined;
+          })();
+
+          const synced = await authService.syncClerkUser(resolvedToken);
           if (isActive) setCurrentUser(synced);
           return;
         } catch {
@@ -71,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       isActive = false;
     };
-  }, [clerkUser, isLoaded, isSignedIn]);
+  }, [clerkUser, getToken, isAuthLoaded, isLoaded, isSignedIn]);
 
   const login = async (email: string, password: string) => {
     const authUser = await authService.login(email, password);

@@ -90,6 +90,50 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.password-input {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+}
+
+.password-input input {
+  width: 100%;
+  padding-right: 76px;
+  min-width: 0;
+}
+
+.password-input__toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.password-input__toggle:hover {
+  background: rgba(95, 163, 227, 0.08);
+  color: var(--text-primary);
+}
+
+.password-input__toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(95, 163, 227, 0.16);
+}
+
+.password-input__toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .field select,
 .field textarea {
   background: var(--panel-muted);

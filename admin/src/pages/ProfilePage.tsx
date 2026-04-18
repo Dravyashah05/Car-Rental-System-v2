@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../services/api'
+import PasswordInput from '../components/PasswordInput'
 
 type ProfileUser = {
   id: string
@@ -290,8 +291,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
             <div className="modal-body form-grid">
               <label className="field">
                 <span>Current password</span>
-                <input
-                  type="password"
+                <PasswordInput
                   value={passwordForm.currentPassword}
                   onChange={(event) =>
                     setPasswordForm((prev) => ({
@@ -303,8 +303,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
               </label>
               <label className="field">
                 <span>New password</span>
-                <input
-                  type="password"
+                <PasswordInput
                   value={passwordForm.newPassword}
                   onChange={(event) =>
                     setPasswordForm((prev) => ({
@@ -316,8 +315,7 @@ function ProfilePage({ onLogout }: ProfilePageProps) {
               </label>
               <label className="field">
                 <span>Confirm new password</span>
-                <input
-                  type="password"
+                <PasswordInput
                   value={passwordForm.confirmPassword}
                   onChange={(event) =>
                     setPasswordForm((prev) => ({

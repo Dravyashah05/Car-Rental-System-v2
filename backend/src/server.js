@@ -1,6 +1,7 @@
 require("dotenv").config(); // ✅ MUST be at the top
 
 const dns = require("dns");
+const net = require("net");
 const http = require("http");
 const app = require("./app");
 const connectDb = require("./config/db");
@@ -9,18 +10,75 @@ const PORT = process.env.PORT || 5000;
 
 const server = http.createServer(app);
 
+const isValidPort = (port) => {
+  const portNumber = Number(port);
+  return Number.isInteger(portNumber) && portNumber > 0 && portNumber <= 65535;
+};
+
+const normalizeDnsServer = (server) => {
+  const trimmed = String(server ?? "").trim();
+  if (!trimmed) return "";
+  return trimmed.endsWith(".") ? trimmed.slice(0, -1) : trimmed;
+};
+
+const isValidDnsServer = (server) => {
+  if (net.isIP(server)) return true;
+
+  // IPv6 with port must be bracketed: [::1]:53
+  const ipv6WithPort = server.match(/^\[([^\]]+)\]:(\d+)$/);
+  if (ipv6WithPort) {
+    const [, address, port] = ipv6WithPort;
+    return net.isIP(address) === 6 && isValidPort(port);
+  }
+
+  // IPv4 with port: 8.8.8.8:53
+  const ipv4WithPort = server.match(/^(.+):(\d+)$/);
+  if (ipv4WithPort) {
+    const [, address, port] = ipv4WithPort;
+    return net.isIP(address) === 4 && isValidPort(port);
+  }
+
+  return false;
+};
+
 const configureDnsForSrv = () => {
   const rawServers = process.env.DNS_SERVERS;
   if (rawServers) {
     const servers = rawServers
       .split(",")
-      .map((server) => server.trim())
+      .map(normalizeDnsServer)
       .filter(Boolean);
 
     if (servers.length > 0) {
-      dns.setServers(servers);
-      console.log(`DNS_SERVERS applied: ${servers.join(", ")}`);
-      return;
+      const validServers = servers.filter(isValidDnsServer);
+      const invalidServers = servers.filter((server) => !isValidDnsServer(server));
+
+      if (invalidServers.length > 0) {
+        console.warn(
+          `Warning: ignoring invalid DNS_SERVERS entries: ${invalidServers.join(
+            ", "
+          )}`
+        );
+      }
+
+      if (validServers.length > 0) {
+        try {
+          dns.setServers(validServers);
+          console.log(`DNS_SERVERS applied: ${validServers.join(", ")}`);
+          return;
+        } catch (err) {
+          console.warn(
+            `Warning: failed to apply DNS_SERVERS (${validServers.join(
+              ", "
+            )}). Using system DNS instead.`
+          );
+          console.warn(err);
+        }
+      } else {
+        console.warn(
+          "Warning: DNS_SERVERS is set but no valid entries were found. Using system DNS instead."
+        );
+      }
     }
   }
 

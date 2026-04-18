@@ -98,8 +98,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/cabs" element={<CabsPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/login/*" element={<LoginPage />} />
+                <Route path="/signup/*" element={<SignupPage />} />
                 <Route path="/sso-callback" element={<SsoCallbackPage />} />
                 <Route path="/login/sso-callback" element={<SsoCallbackPage />} />
                 <Route path="/signup/sso-callback" element={<SsoCallbackPage />} />
